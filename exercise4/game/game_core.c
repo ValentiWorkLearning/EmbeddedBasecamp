@@ -37,9 +37,14 @@ void append_player_to_game(int player_id){
 void player_dtor(player_t* player_to_destruct)
 {
     assert(player_to_destruct);
+
     dice_t* dice_it = NULL;
-    list_for_each_entry_reverse(dice_it,&player_to_destruct->dice_list,dice_list)
+    struct list_head *pos, *q;
+
+    list_for_each_safe(pos,q,&player_to_destruct->dice_list)
     {
+        dice_it = list_entry(pos,struct dice,dice_list);
+        list_del(pos);
         dice_dtor(dice_it);
     }
     free(player_to_destruct);
@@ -100,10 +105,13 @@ void print_players()
 void cleanup_players()
 {
     player_t* player_it = NULL;
-    list_for_each_entry_reverse(player_it,&players_list,item_list)
+    struct list_head *pos, *q;
+
+    list_for_each_safe(pos,q,&players_list)
     {
-        if(player_it)
-            player_dtor(player_it);
+         player_it = list_entry(pos,struct player,item_list);
+         list_del(pos);
+         player_dtor(player_it);
     }
 }
 
