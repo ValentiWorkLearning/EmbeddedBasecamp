@@ -1,0 +1,7 @@
+echo "First Argument is: $1"
+fileList = $(find $1 -name '*.tmp')
+
+for fil
+eItem in $fileList; do
+	echo $fileItem
+done
