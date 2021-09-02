@@ -11,6 +11,9 @@ MODULE_VERSION("0.01");
 
 static int uahToEuro = 31;
 static int uahAmount = 100;
+module_param( uahToEuro, int, 0 ); 
+module_param( uahAmount, int, 0 ); 
+
 
 static char g_converionBuffer[CONVERSION_BUFFER_SIZE] = {};
 
