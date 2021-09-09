@@ -8,3 +8,5 @@ d1210031d6804c2772634a309eeece8245cca1ff [ Implemented number comparison
 ]
 
 Предложить пользователю ввести число, если оно не задано параметром командной строки.
+
+Subtask completed.
