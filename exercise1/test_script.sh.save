@@ -1,3 +1,0 @@
-echo "First Argument is: $1"
-listFiles = $(find $1 -name '*.tmp' -o -name '*-*' -o -name '*_*' -o -name '~') $(find $1 -name '*.tmp')
-echo "$listFiles"
