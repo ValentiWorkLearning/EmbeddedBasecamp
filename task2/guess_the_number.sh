@@ -2,7 +2,9 @@
 upperRangeLimit=100
 lowerRangeMin=1
 upperRange=0
+gameStatus=0
 
+# Generate the random number value from min to max range values
 function generateRandomValue()
 {
     local minValue=$1
@@ -13,6 +15,7 @@ function generateRandomValue()
     echo $randomValue
 }
 
+# Processing of the first guessed number
 function processEnteredUsersValue()
 {
     if [ -z "$1" ]
@@ -24,6 +27,7 @@ function processEnteredUsersValue()
     fi
 }
 
+# Process the available upper range value
 function checkAvailableUpperRange()
 {
     if [ -z "$1" ]
@@ -42,10 +46,7 @@ function checkAvailableUpperRange()
     fi
 }
 
-#"Random number is greater than cmd param"
-#"Cmd number is greater than generated random"
-#0
-
+# Obtain the comparison result
 function checkEnteredValues()
 {
     if [[ $randomNumber -gt $toCompareCmdNumber ]]
@@ -60,6 +61,7 @@ function checkEnteredValues()
     fi
 }
 
+# Check the number of guessings from the either cmd or the user input
 function checkNumberOfGuessings()
 {
      if [ -z "$1" ]
@@ -71,6 +73,7 @@ function checkNumberOfGuessings()
     fi
 }
 
+# Obtain the message to user for a function return
 function processResultMessage()
 {
     case $1 in
@@ -86,12 +89,21 @@ function processResultMessage()
     esac
 }
 
+# Main game loop playing
+# Obtain the random number and eval all of the game functions flow
 function playGameLoop()
 {
     randomNumber=$(generateRandomValue 1 $upperRange);
 
     result=$(checkEnteredValues);
     processResultMessage $result
+
+    if [ $result -eq 0 ]
+        then
+            gameStatus=0;
+        return;
+    fi
+
     attemptsCounter=1;
 
     while [[ $attemptsCounter -le $numberOfGuessings ]]; do
@@ -101,15 +113,33 @@ function playGameLoop()
        processResultMessage $result
         if [ $result -eq 0 ]
         then
-            return
+            gameStatus=0;
+            return;
         fi
 
        ((attemptsCounter=attemptsCounter+1))
     done
+    gameStatus=-1;
 }
 processEnteredUsersValue $1
 checkAvailableUpperRange $2
 checkNumberOfGuessings $3
-playGameLoop
 
+playGameLoop
+while [[ $gameStatus -eq 0 ]]; do
+    echo "Play new game?";
+    read playAgain
+
+    if [[ $playAgain = "yes" ]]
+    then
+        playGameLoop
+    else
+        exit 0;
+    fi
+
+    if [[ $gameStatus -eq -1 ]]
+    then
+        exit -1;
+    fi
+done
 
