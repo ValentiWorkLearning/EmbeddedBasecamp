@@ -9,5 +9,12 @@ function generateRandomValue()
     echo $randomValue
 }
 
-result=$(generateRandomValue 1 6);
-echo $result 
+randomNumber=$(generateRandomValue 1 6);
+toCompareCmdNumber=$1
+
+if [[ $randomNumber -gt $toCompareCmdNumber ]]
+then
+    echo "Random number is greater than cmd param";
+else
+    echo "Cmd number is greater than generated random"
+fi
