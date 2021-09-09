@@ -42,21 +42,74 @@ function checkAvailableUpperRange()
     fi
 }
 
+#"Random number is greater than cmd param"
+#"Cmd number is greater than generated random"
+#0
+
 function checkEnteredValues()
 {
     if [[ $randomNumber -gt $toCompareCmdNumber ]]
     then
-        echo "Random number is greater than cmd param";
-    else
-        echo "Cmd number is greater than generated random"
+        echo -1;
+    elif [[ $randomNumber -lt $toCompareCmdNumber ]]
+    then
+        echo 1
+    elif [[ $randomNumber -eq $toCompareCmdNumber ]]
+    then
+        echo 0
     fi
 }
 
+function checkNumberOfGuessings()
+{
+     if [ -z "$1" ]
+     then
+        echo "Enter the number of guessing"
+        read numberOfGuessings
+    else
+        numberOfGuessings=$1
+    fi
+}
+
+function processResultMessage()
+{
+    case $1 in
+    -1 )
+        echo "Random number is greater than cmd param"
+    ;;
+    1 )
+        echo "Cmd number is greater than generated random"
+    ;;
+    0 )
+        echo "Guessed right!"
+    ;;
+    esac
+}
+
+function playGameLoop()
+{
+    randomNumber=$(generateRandomValue 1 $upperRange);
+
+    result=$(checkEnteredValues);
+    processResultMessage $result
+    attemptsCounter=1;
+
+    while [[ $attemptsCounter -le $numberOfGuessings ]]; do
+       echo "enter your new guess:"
+       read toCompareCmdNumber;
+       result=$(checkEnteredValues);
+       processResultMessage $result
+        if [ $result -eq 0 ]
+        then
+            return
+        fi
+
+       ((attemptsCounter=attemptsCounter+1))
+    done
+}
 processEnteredUsersValue $1
 checkAvailableUpperRange $2
+checkNumberOfGuessings $3
+playGameLoop
 
 
-randomNumber=$(generateRandomValue 1 $upperRange);
-
-
-checkEnteredValues
