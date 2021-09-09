@@ -6,3 +6,5 @@ Subtask: Extract Function refactoring.
 Реализовать сравнение сгенерированного случайно числа X с числом Y, которое задано первым параметром командной строки и вывести соответствующее сообщение: Y is less than X, Y is greater than X или Y is equal to X.
 d1210031d6804c2772634a309eeece8245cca1ff [ Implemented number comparison
 ]
+
+Предложить пользователю ввести число, если оно не задано параметром командной строки.
