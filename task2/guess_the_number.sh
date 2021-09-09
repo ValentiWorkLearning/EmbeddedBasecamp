@@ -10,7 +10,13 @@ function generateRandomValue()
 }
 
 randomNumber=$(generateRandomValue 1 6);
-toCompareCmdNumber=$1
+if [ -z "$1" ]
+then
+    echo "Enter the number please"
+    read toCompareCmdNumber
+else
+    toCompareCmdNumber=$1
+fi
 
 if [[ $randomNumber -gt $toCompareCmdNumber ]]
 then
