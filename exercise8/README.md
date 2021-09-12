@@ -28,8 +28,8 @@ cd *your cloned linux sources with the linux_stable directory*
 
 ```shell
 make O=${BUILD_KERNEL} i386_defconfig
-make menuconfig
 cd ${BUILD_KERNEL}
+make menuconfig
 make -j4
 ```
 
