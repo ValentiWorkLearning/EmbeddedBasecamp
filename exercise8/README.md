@@ -58,7 +58,7 @@ make menuconfig
 * System configuration
     * System hostname = `valentiKernel`
     * System Banner = `Welcome to ValentiLinux`
-    * Enable root login `withpassword
+    * Enable root login with password
     * Root password = `<password>`
     * Path to the users' tables `${BUILD_ROOTFS}/users`
     * Root filesystem overlay directories = `${BUILD_ROOTFS}/root`
@@ -129,4 +129,47 @@ echo "user ALL=(ALL)" > ${BUILD_ROOTFS}/root/etc/sudoers.d/user
 
 ```shell
     make
+```
+
+
+### Errors
+```shell
+mkfs.ext2: No such file or directory while trying to determine filesystem size
+*** Maybe you need to increase the filesystem size (BR2_TARGET_ROOTFS_EXT2_SIZE)
+make[1]: *** [fs/ext2/ext2.mk:63: /home/valenti/rootfs_build/images/rootfs.ext2] Error 1
+make: *** [Makefile:23: _all] Error 2
+
+```
+### Solution
+- Navigate to the `${BUILD_ROOTFS}`
+- `make menuconfig`
+- `Filesystem Images -> extract size to 250M `
+
+```shell
+cd ${BUILD_ROOTFS}
+make menuconfig
+```
+
+
+### Build artifacts will be available in:
+`${BUILD_ROOTFS}/images/rootfs.ext2`
+
+# QEMU:
+
+### Installation qemu
+```shell
+apt-get install qemu
+sudo apt install qemu-system-x86
+```
+### Launch QEMU from the cmd
+
+Note: We are running qemu in background, but bound to current
+terminal.
+
+```shell
+qemu-system-i386 \
+-kernel ${BUILD_KERNEL}/arch/i386/boot/bzImage \
+-append "root=/dev/sda console=ttyS0" \
+-drive format=raw,file=${BUILD_ROOTFS}/images/rootfs.ext2 -nic user, \
+hostfwd=tcp::8022-:22 &
 ```
