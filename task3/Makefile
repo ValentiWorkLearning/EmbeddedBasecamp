@@ -7,6 +7,13 @@ CFLAGS =  -g -Wall
 
 .PHONY: all
 
+define run_test_on_file
+	- mkdir $(BUILD_DIR)test
+	- cp $(SOURCE)$(1) $(BUILD_DIR)test/
+	$(BUILD_DIR)/./pack < $(BUILD_DIR)test/$(1) > $(BUILD_DIR)$(1)_decoded_data
+	$(BUILD_DIR)/./upack < $(BUILD_DIR)$(1)_decoded_data
+endef
+
 all: pack upack
 
 pack: src/encoder.c
@@ -32,3 +39,6 @@ install: pack upack
 	sudo dpkg -i $(BUILD_DIR)rle_encoder_valenti-1.0_amd64.deb
 uninstall:
 	sudo dpkg -r rle-econder-decoder-valenti
+test: pack upack
+	 $(call run_test_on_file,test-file-latin)
+	 $(call run_test_on_file,test-file-simple_aaa)
