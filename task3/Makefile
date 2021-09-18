@@ -18,6 +18,7 @@ upack: src/decoder.c
 clean:
 	$(RM) -rf *.o
 	$(RM) -rf $(BUILD_DIR)/rle_encoder_valenti
+	$(RM) -rf $(BUILD_DIR)/*
 install: pack upack
 	- mkdir $(BUILD_DIR)rle_encoder_valenti
 	- mkdir $(BUILD_DIR)rle_encoder_valenti/DEBIAN
@@ -28,3 +29,6 @@ install: pack upack
 	yes | cp -rf $(BUILD_DIR)upack $(BUILD_DIR)rle_encoder_valenti/opt/valenti_work_rle
 	dpkg-deb --build $(BUILD_DIR)rle_encoder_valenti
 	mv $(BUILD_DIR)rle_encoder_valenti.deb $(BUILD_DIR)rle_encoder_valenti-1.0_amd64.deb
+	sudo dpkg -i $(BUILD_DIR)rle_encoder_valenti-1.0_amd64.deb
+uninstall:
+	sudo dpkg -r rle-econder-decoder-valenti
