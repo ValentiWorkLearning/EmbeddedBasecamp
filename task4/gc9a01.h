@@ -18,7 +18,7 @@
 #define LCD_PIN_RESET 27
 #define LCD_PIN_DC 22
 
-#define LCD_WIDTH 320
+#define LCD_WIDTH 240
 #define LCD_HEIGHT 240
 
 void init_display(void);
