@@ -1,6 +1,9 @@
 #include "gc9a01.h"
 #include "gpio_module.h"
 #include "spi_module.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <unistd.h>
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
@@ -14,7 +17,7 @@ static uint16_t frame_buffer[LCD_WIDTH * LCD_HEIGHT];
 // clang-format off
 #define COMMANDS_SIZE 328
 #define COMMANDS_TRANSACTIONS_COUNT 59
-static const uint8_t Commands[COMMANDS_SIZE]
+static const uint8_t Commands[COMMANDS_SIZE] = 
 {
     /***Cmd****Argc****delay****argv*****************************/
         0xFE,   0,      0
@@ -99,74 +102,69 @@ static const uint8_t Commands[COMMANDS_SIZE]
 };
 // clang-format on
 
+static void init_display_internal(void);
 
 void init_display(void)
 {
-    gpio_init(GPIO_PIN_RESET);
-    gpio_init(GPIO_PIN_DC);
-    gpio_init(GPIO_PIN_CS);
-    lcd_reset();
-    init_spi_module();
-    init_display_internal();
+	gpio_init(GPIO_PIN_RESET);
+	gpio_init(GPIO_PIN_DC);
+	gpio_init(GPIO_PIN_CS);
+	lcd_reset();
+	init_spi_module();
+	init_display_internal();
 }
 
 static void lcd_write_command(uint8_t cmd)
 {
-    gpio_set_value(GPIO_PIN_DC, 0);
-    spi_write(&cmd, sizeof(cmd));
+	gpio_set_value(GPIO_PIN_DC, 0);
+	spi_write(&cmd, sizeof(cmd));
 }
 
-static void lcd_write_data(uint8_t *buff, unsigned long buff_size)
+static void lcd_write_data(const uint8_t *buff, unsigned long buff_size)
 {
-    unsigned long i = 0;
-
-    gpio_set_value(LCD_PIN_DC, 1);
-    while (buff_size > DATA_SIZE)
-    {
-        spi_write(buff + i, DATA_SIZE);
-        i += DATA_SIZE;
-        buff_size -= DATA_SIZE;
-    }
-    spi_write(buff + i, buff_size);
+	unsigned long i = 0;
+	uint8_t *p_write_buffer = buff;
+	gpio_set_value(LCD_PIN_DC, 1);
+	while (buff_size > DATA_SIZE) {
+		spi_write(p_write_buffer + i, DATA_SIZE);
+		i += DATA_SIZE;
+		buff_size -= DATA_SIZE;
+	}
+	spi_write(p_write_buffer + i, buff_size);
 }
 
 static void init_display_internal(void)
 {
+	size_t CommandCount = COMMANDS_TRANSACTIONS_COUNT;
+	const uint8_t *pBuffer = Commands;
+	while (CommandCount--) {
+		const uint8_t *Command = pBuffer++;
+		const uint8_t NumArgs = *pBuffer++;
+		const uint8_t Delay = *pBuffer++;
 
-    size_t CommandCount = COMMANDS_TRANSACTIONS_COUNT;
-    const uint8_t *pBuffer = Commands;
-    while (CommandCount--)
-    {
-        const std::uint8_t *Command = pBuffer++;
-        const std::uint8_t NumArgs = *pBuffer++;
-        const std::uint8_t Delay = *pBuffer++;
-
-        lcd_write_command(Command);
-        if (NumArgs)
-        {
-            lcd_write_data(pBuffer++, NumArgs);
-            pBuffer += (NumArgs - 1);
-        }
-        if (Delay)
-            sleep(Delay);
-    }
+		lcd_write_command(*Command);
+		if (NumArgs) {
+			lcd_write_data(pBuffer++, NumArgs);
+			pBuffer += (NumArgs - 1);
+		}
+		if (Delay)
+			sleep(Delay);
+	}
 }
-
 
 void lcd_set_address_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
-    
 	lcd_write_command(0x2a);
 	{
 		uint8_t data[] = { (x0 >> 8) & 0xFF, x0 & 0xFF,
-				 (x1 >> 8) & 0xFF, x1 & 0xFF };
+				   (x1 >> 8) & 0xFF, x1 & 0xFF };
 		lcd_write_data(data, sizeof(data));
 	}
 
 	lcd_write_command(0x2b);
 	{
 		uint8_t data[] = { (y0 >> 8) & 0xFF, y0 & 0xFF,
-				(y1 >> 8) & 0xFF, y1 & 0xFF };
+				   (y1 >> 8) & 0xFF, y1 & 0xFF };
 		lcd_write_data(data, sizeof(data));
 	}
 
@@ -175,7 +173,8 @@ void lcd_set_address_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 
 void lcd_update_screen(void)
 {
-    lcd_write_data((uint8_t*)frame_buffer, sizeof(uint16_t) * LCD_WIDTH * LCD_HEIGHT);
+	lcd_write_data((uint8_t *)frame_buffer,
+		       sizeof(uint16_t) * LCD_WIDTH * LCD_HEIGHT);
 }
 
 void lcd_draw_pixel(uint16_t x, uint16_t y, uint16_t color)
@@ -183,11 +182,12 @@ void lcd_draw_pixel(uint16_t x, uint16_t y, uint16_t color)
 	if ((x >= LCD_WIDTH) || (y >= LCD_HEIGHT)) {
 		return;
 	}
-        
+
 	frame_buffer[x + LCD_WIDTH * y] = (color >> 8) | (color << 8);
 	lcd_update_screen();
 }
-void lcd_fill_rectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
+void lcd_fill_rectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
+			uint16_t color)
 {
 	uint16_t i;
 	uint16_t j;
@@ -206,7 +206,8 @@ void lcd_fill_rectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t
 
 	for (j = 0; j < h; j++) {
 		for (i = 0; i < w; i++) {
-			frame_buffer[(x + LCD_WIDTH * y) + (i + LCD_WIDTH * j)] = (color >> 8) | (color << 8);
+			frame_buffer[(x + LCD_WIDTH * y) + (i + LCD_WIDTH * j)] =
+				(color >> 8) | (color << 8);
 		}
 	}
 	lcd_update_screen();
@@ -217,19 +218,21 @@ void lcd_fill_screen(uint16_t color)
 	lcd_fill_rectangle(0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1, color);
 }
 
-void lcd_put_char(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor) 
+void lcd_put_char(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color,
+		  uint16_t bgcolor)
 {
 	uint32_t i, b, j;
 
 	for (i = 0; i < font.height; i++) {
 		b = font.data[(ch - 32) * font.height + i];
 		for (j = 0; j < font.width; j++) {
-			if ((b << j) & 0x8000)  {
-				frame_buffer[(x + LCD_WIDTH * y) + (j + LCD_WIDTH * i)] = 
+			if ((b << j) & 0x8000) {
+				frame_buffer[(x + LCD_WIDTH * y) +
+					     (j + LCD_WIDTH * i)] =
 					(color >> 8) | (color << 8);
-			} 
-			else {
-				frame_buffer[(x + LCD_WIDTH * y) + (j + LCD_WIDTH * i)] = 
+			} else {
+				frame_buffer[(x + LCD_WIDTH * y) +
+					     (j + LCD_WIDTH * i)] =
 					(bgcolor >> 8) | (bgcolor << 8);
 			}
 		}
@@ -238,16 +241,16 @@ void lcd_put_char(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color,
 
 void lcd_reset(void)
 {
-    gpio_set_value(GPIO_PIN_RESET, 0);
-    usleep(5000);
-    gpio_set_value(GPIO_PIN_RESET, 1);
-    gpio_set_value(GPIO_PIN_CS, 0);
+	gpio_set_value(GPIO_PIN_RESET, 0);
+	usleep(5000);
+	gpio_set_value(GPIO_PIN_RESET, 1);
+	gpio_set_value(GPIO_PIN_CS, 0);
 }
 
-void lcd_deinit(void){
-    deinit_spi();
-    gpio_free(GPIO_PIN_RESET);
+void lcd_deinit(void)
+{
+	deinit_spi();
+	gpio_free(GPIO_PIN_RESET);
 	gpio_free(GPIO_PIN_DC);
 	gpio_free(GPIO_PIN_CS);
-
 }

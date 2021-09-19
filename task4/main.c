@@ -5,10 +5,9 @@
 
 #include "gc9a01.h"
 
-
-int main(int argc, char *argv[]) {
-
-    init_display();
+int main(int argc, char *argv[])
+{
+	init_display();
 	printf("LCD init ok\n");
 	lcd_set_address_window(0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1);
 
