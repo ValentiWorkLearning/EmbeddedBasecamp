@@ -97,8 +97,8 @@ static const uint8_t Commands[COMMANDS_SIZE] =
     ,   0x35,   0,      0
     ,   0x21,   0,      0
 
-    ,   0x11,   0,      120
-    ,   0x29,   0,      120
+    ,   0x11,   0,      1
+    ,   0x29,   0,      1
 };
 // clang-format on
 
