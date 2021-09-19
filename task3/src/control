@@ -1,0 +1,9 @@
+Package: rle-econder-decoder-valenti
+Version: 1.0
+Section: custom
+Priority: optional
+Architecture: all
+Essential: no
+Installed-Size: 1024
+Maintainer: ValentiWorkLearning
+Description: Encodes and decodes the stdout strings using RLE algorithm
