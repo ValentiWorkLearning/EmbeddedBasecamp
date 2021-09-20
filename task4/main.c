@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
 	lcd_fill_screen(COLOR_BLUE);
 	lcd_put_char(10, 10, 'A', Font_11x18, COLOR_RED, COLOR_BLACK);
 	lcd_update_screen();
+	lcd_put_string("hello world!",30,20,Font_11x18,COLOR_RED,COLOR_BLACK);
 
 	sleep(2);
 

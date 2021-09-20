@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <unistd.h>
+#include <stdbool.h>
+#include <string.h>
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
@@ -236,6 +238,26 @@ void lcd_put_char(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color,
 					(bgcolor >> 8) | (bgcolor << 8);
 			}
 		}
+	}
+}
+
+void lcd_put_string(const char *string, uint16_t x, uint16_t y, FontDef font,
+		    uint16_t color, uint16_t bgcolor)
+{
+	int length_of_string = strlen(string);
+	uint16_t local_x = x;
+	uint16_t local_y = y;
+
+	for(int i = 0; i< length_of_string; ++i)
+	{
+		bool move_to_next_line = x + i*font.width > LCD_WIDTH;
+		if(move_to_next_line)
+		{
+			local_y += font.height;
+			local_x = x;
+		}
+		lcd_put_char(local_x, local_y,string[i],font,color,bgcolor);
+		local_x += i* font.width;
 	}
 }
 

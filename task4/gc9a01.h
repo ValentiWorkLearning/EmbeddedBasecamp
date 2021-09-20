@@ -30,6 +30,8 @@ void lcd_fill_rectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
 void lcd_fill_screen(uint16_t color);
 void lcd_put_char(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color,
 		  uint16_t bgcolor);
+void lcd_put_string(const char *string, uint16_t x, uint16_t y, FontDef font,
+		    uint16_t color, uint16_t bgcolor);
 void lcd_reset(void);
 void lcd_deinit(void);
 #endif
