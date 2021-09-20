@@ -108,9 +108,9 @@ static void init_display_internal(void);
 
 void init_display(void)
 {
-	gpio_init(GPIO_PIN_RESET);
-	gpio_init(GPIO_PIN_DC);
-	gpio_init(GPIO_PIN_CS);
+	gpio_init_out(GPIO_PIN_RESET);
+	gpio_init_out(GPIO_PIN_DC);
+	gpio_init_out(GPIO_PIN_CS);
 	lcd_reset();
 	init_spi_module();
 	init_display_internal();
