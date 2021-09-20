@@ -250,14 +250,18 @@ void lcd_put_string(const char *string, uint16_t x, uint16_t y, FontDef font,
 
 	for(int i = 0; i< length_of_string; ++i)
 	{
-		bool move_to_next_line = x + i*font.width > LCD_WIDTH;
+		bool move_to_next_line = local_x + font.width > LCD_WIDTH;
+		bool stop_drawing = local_y + font.height > LCD_HEIGHT;
+		if(stop_drawing)
+			return;
+
 		if(move_to_next_line)
 		{
 			local_y += font.height;
 			local_x = x;
 		}
 		lcd_put_char(local_x, local_y,string[i],font,color,bgcolor);
-		local_x += i* font.width;
+		local_x += font.width;
 	}
 }
 
