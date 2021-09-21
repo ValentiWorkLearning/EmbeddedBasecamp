@@ -1,8 +1,9 @@
 #include "buttons_module.h"
 #include <stddef.h>
+#include <stdio.h>
 
-#define SHORT_CLICK_THERSHOLD 50
-#define LONG_CLICK_THERSHOLD 400
+#define SHORT_CLICK_THERSHOLD 500
+#define LONG_CLICK_THERSHOLD 6000
 
 typedef enum button_state {
 	kPressed = 0,
@@ -51,7 +52,7 @@ static void process_pin_event(int pin_event, int pin_number)
 	for (int i = 0; i < BUTTONS_COUNT; ++i) {
 		if (buttons[i].pin_id == pin_number) {
 			if (pin_event == kPressed) {
-				++buttons[i].press_count;
+				buttons[i].press_count += 1;
 				buttons[i].button_state = kPressed;
 			} else if (pin_event == kReleased) {
 				if (buttons[i].button_state == kPressed) {

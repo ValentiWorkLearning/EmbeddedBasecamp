@@ -103,13 +103,15 @@ int gpio_get_value(unsigned int gpio)
 
 	snprintf(buf, sizeof(buf), GPIO_DIR "/gpio%d/value", gpio);
 
-	fd = open(buf, O_WRONLY);
+	fd = open(buf, O_RDWR);
 	if (fd < 0) {
-		perror("gpio/set-value");
+		perror("gpio/get-value");
 		return fd;
 	}
 
 	char input_port_value = 0;
 	lseek(fd, 0, SEEK_SET);
 	read(fd, &input_port_value, sizeof(char));
+	close(fd);
+	return input_port_value - 0x30;
 }
