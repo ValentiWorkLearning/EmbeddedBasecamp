@@ -5,12 +5,6 @@
 #include <stdbool.h>
 #include <time.h>
 
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
 #include "gc9a01.h"
 #include "buttons_module.h"
 
@@ -26,7 +20,9 @@ drawing_processor_t drawing_manager = { .counter_rect_invalidated = true };
 
 int counter_value = 0;
 bool running_app = true;
-char* local_ip = NULL;
+
+#define IP_BUFFER_LENGTH 256
+char local_ip[IP_BUFFER_LENGTH];
 
 void push_counter_up()
 {
@@ -76,19 +72,15 @@ void draw_ip_address()
 	if(!is_initialized)
 	{
 		// https://www.geeksforgeeks.org/c-program-display-hostname-ip-address/
-   		char host[CONVERSION_BUFFER_SIZE*4];
 
-   		struct hostent *host_entry;
-   		int hostname;
-   		hostname = gethostname(host, sizeof(host));
-   		host_entry = gethostbyname(host);
-   		local_ip = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0]));
+		FILE* p_hosts_file = NULL;
+		p_hosts_file = fopen("host.txt");
+		fgets(local_ip, IP_BUFFER_LENGTH, p_hosts_file);
+		fclose(p_hosts_file);
 		is_initialized = true;
 	}
-
-
 	const int x0_coord = LCD_WIDTH / 4;
-	const int y0_counter = LCD_HEIGHT - 40;
+	const int y0_counter = LCD_HEIGHT - 60;
    	lcd_put_string(local_ip,x0_coord,y0_counter,Font_11x18,COLOR_RED,COLOR_BLACK);
 }
 
