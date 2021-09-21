@@ -11,21 +11,21 @@ int counter_value = 0;
 
 void push_counter_up()
 {
-	++counter_value;
-	printf("Updated counter value:%d\n",counter_value);
+	counter_value+=1;
+	printf("Updated counter value UP:%d\n",counter_value);
 	update_counter_rect();
 }
 void push_counter_down()
 {
 	if (counter_value - 1 >= 0)
-		--counter_value;
-	printf("Updated counter value:%d\n",counter_value);
+		counter_value-=1;
+	printf("Updated counter value DOWN:%d\n",counter_value);
 	update_counter_rect();
 }
 void reset_counter()
 {
 	counter_value = 0;
-	printf("Updated counter value:%d\n",counter_value);
+	printf("Updated counter value RESET:%d\n",counter_value);
 	update_counter_rect();
 }
 void update_counter_rect()
