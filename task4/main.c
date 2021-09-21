@@ -74,7 +74,7 @@ void draw_ip_address()
 		// https://www.geeksforgeeks.org/c-program-display-hostname-ip-address/
 
 		FILE* p_hosts_file = NULL;
-		p_hosts_file = fopen("host.txt");
+		p_hosts_file = fopen("host.txt","r");
 		fgets(local_ip, IP_BUFFER_LENGTH, p_hosts_file);
 		fclose(p_hosts_file);
 		is_initialized = true;
