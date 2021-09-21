@@ -50,7 +50,7 @@ void draw_current_time()
 
 	time_t current_system_time = time(NULL);
 	struct tm *loc_time = localtime (&current_system_time);
-	snprintf(conversion_buffer,sizeof(conversion_buffer),"%d:%d:%d",loc_time.tm_hour,loc_time.tm_min,loc_time.tm_sec);
+	snprintf(conversion_buffer,sizeof(conversion_buffer),"%d:%d:%d",loc_time->tm_hour,loc_time->tm_min,loc_time->tm_sec);
 	
 	const int x0_coord = LCD_WIDTH / 4;
 	const int y0_counter = LCD_HEIGHT - 40;
@@ -96,7 +96,6 @@ int main(int argc, char *argv[])
 
 	while (true) {
 		process_buttons_module();
-		get_current_time();
 		draw_counter_value();
 		draw_current_time();
 		draw_ip_address();
