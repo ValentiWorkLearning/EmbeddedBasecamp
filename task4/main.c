@@ -25,6 +25,7 @@ drawing_processor_t drawing_manager = { .counter_rect_invalidated = true };
 
 
 int counter_value = 0;
+bool running_app = true;
 
 void push_counter_up()
 {
@@ -51,6 +52,10 @@ void update_counter_rect()
 	drawing_manager.counter_rect_invalidated = true;
 }
 
+void exit_app()
+{
+	running_app = false;
+}
 void draw_current_time()
 {
 	char conversion_buffer[CONVERSION_BUFFER_SIZE];
@@ -110,8 +115,9 @@ int main(int argc, char *argv[])
 	attach_short_click_listener_counter_up(&push_counter_up);
 	attach_short_click_listener_counter_down(&push_counter_down);
 	attach_short_click_listener_control_button(&reset_counter);
+	attach_long_click_listener(&exit_app);
 
-	while (true) {
+	while (true && running_app) {
 		process_buttons_module();
 		draw_counter_value();
 		draw_current_time();
