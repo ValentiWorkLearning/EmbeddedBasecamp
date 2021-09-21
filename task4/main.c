@@ -16,7 +16,8 @@ void push_counter_up()
 }
 void push_counter_down()
 {
-	--counter_value;
+	if(counter_value - 1 >= 0);
+		--counter_value;
 	update_counter_rect();
 }
 void reset_counter()
@@ -27,6 +28,19 @@ void reset_counter()
 void update_counter_rect()
 {
 
+}
+
+void draw_current_time()
+{
+
+}
+void draw_ip_address()
+{
+
+}
+void draw_counter_value()
+{
+	
 }
 
 int main(int argc, char *argv[])
