@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include "gc9a01.h"
 #include "buttons_module.h"
 
@@ -53,12 +59,25 @@ void draw_current_time()
 	snprintf(conversion_buffer,sizeof(conversion_buffer),"%d:%d:%d",loc_time->tm_hour,loc_time->tm_min,loc_time->tm_sec);
 	
 	const int x0_coord = LCD_WIDTH / 4;
-	const int y0_counter = LCD_HEIGHT - 40;
+	const int y0_counter = 40;
 	lcd_put_string(conversion_buffer,x0_coord,y0_counter,Font_11x18,COLOR_RED,COLOR_BLACK);
 	lcd_update_screen();
 }
 void draw_ip_address()
 {
+// https://www.geeksforgeeks.org/c-program-display-hostname-ip-address/
+   char host[CONVERSION_BUFFER_SIZE*4];
+   char* local_ip = NULL;
+
+   struct hostent *host_entry;
+   int hostname;
+   hostname = gethostname(host, sizeof(host));
+   host_entry = gethostbyname(host);
+   local_ip = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0]));
+
+	const int x0_coord = LCD_WIDTH / 4;
+	const int y0_counter = LCD_HEIGHT - 40;
+   lcd_put_string(local_ip,x0_coord,y0_counter,Font_11x18,COLOR_RED,COLOR_BLACK);
 }
 
 void draw_counter_value()
@@ -85,10 +104,7 @@ int main(int argc, char *argv[])
 	lcd_set_address_window(0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1);
 
 	lcd_fill_screen(COLOR_BLUE);
-	lcd_put_char(10, 10, 'A', Font_11x18, COLOR_RED, COLOR_BLACK);
 	lcd_update_screen();
-	lcd_put_string("hello world!", 30, 20, Font_11x18, COLOR_RED,
-		       COLOR_BLACK);
 
 	attach_short_click_listener_counter_up(&push_counter_up);
 	attach_short_click_listener_counter_down(&push_counter_down);
