@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#define SHORT_CLICK_THERSHOLD 500
+#define SHORT_CLICK_THERSHOLD 1000
 #define LONG_CLICK_THERSHOLD 6000
 
 typedef enum button_state {
