@@ -1,5 +1,0 @@
-make --dry-run --keep-going --print-directory
-make: Entering directory '/home/valenti/Development/Embedded/gl_embeddedlinux/task4'
-gcc -o ./bin//dislaytestapp main.c gc9a01.c gpio_module.c spi_module.c fonts.c -I.
-make: Leaving directory '/home/valenti/Development/Embedded/gl_embeddedlinux/task4'
- 
