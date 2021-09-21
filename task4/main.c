@@ -46,6 +46,16 @@ void update_counter_rect()
 
 void draw_current_time()
 {
+	char conversion_buffer[CONVERSION_BUFFER_SIZE];
+
+	time_t current_system_time = time(NULL);
+	struct tm *loc_time = localtime (&current_system_time);
+	snprintf(conversion_buffer,sizeof(conversion_buffer),"%d:%d:%d",loc_time.tm_hour,loc_time.tm_min,loc_time.tm_sec);
+	
+	const int x0_coord = LCD_WIDTH / 4;
+	const int y0_counter = LCD_HEIGHT - 40;
+	lcd_put_string(conversion_buffer,x0_coord,y0_counter,Font_11x18,COLOR_RED,COLOR_BLACK);
+	lcd_update_screen();
 }
 void draw_ip_address()
 {
@@ -55,9 +65,10 @@ void draw_counter_value()
 {
 	if(drawing_manager.counter_rect_invalidated)
 	{
+		char conversion_buffer[CONVERSION_BUFFER_SIZE];
+
 		const int x0_counter = LCD_WIDTH / 2 - Font_16x26.width/2;
 		const int y0_counter = LCD_HEIGHT /2 - Font_16x26.height/2;
-		char conversion_buffer[CONVERSION_BUFFER_SIZE];
 		snprintf(conversion_buffer, sizeof(conversion_buffer), "%d", counter_value);
 		lcd_put_string(conversion_buffer,x0_counter,y0_counter,Font_16x26,COLOR_RED,COLOR_BLACK);
 		lcd_update_screen();
@@ -85,6 +96,7 @@ int main(int argc, char *argv[])
 
 	while (true) {
 		process_buttons_module();
+		get_current_time();
 		draw_counter_value();
 		draw_current_time();
 		draw_ip_address();
