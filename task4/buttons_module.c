@@ -58,10 +58,7 @@ static void process_pin_event(int pin_event, int pin_number)
 				if (buttons[i].button_state == kPressed) {
 					int counter_press =
 						buttons[i].press_count;
-					if ((counter_press >
-					     SHORT_CLICK_THERSHOLD) &&
-					    (counter_press <
-					     LONG_CLICK_THERSHOLD)) {
+					if ((counter_press > 0) && (counter_press< SHORT_CLICK_THERSHOLD)) {
 						if (buttons[i]
 							    .short_click_handler)
 							buttons[i]
