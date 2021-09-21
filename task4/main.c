@@ -26,6 +26,7 @@ drawing_processor_t drawing_manager = { .counter_rect_invalidated = true };
 
 int counter_value = 0;
 bool running_app = true;
+char* local_ip = NULL;
 
 void push_counter_up()
 {
@@ -71,19 +72,24 @@ void draw_current_time()
 }
 void draw_ip_address()
 {
-// https://www.geeksforgeeks.org/c-program-display-hostname-ip-address/
-   char host[CONVERSION_BUFFER_SIZE*4];
-   char* local_ip = NULL;
+	static bool is_initialized = false;
+	if(!is_initialized)
+	{
+		// https://www.geeksforgeeks.org/c-program-display-hostname-ip-address/
+   		char host[CONVERSION_BUFFER_SIZE*4];
 
-   struct hostent *host_entry;
-   int hostname;
-   hostname = gethostname(host, sizeof(host));
-   host_entry = gethostbyname(host);
-   local_ip = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0]));
+   		struct hostent *host_entry;
+   		int hostname;
+   		hostname = gethostname(host, sizeof(host));
+   		host_entry = gethostbyname(host);
+   		local_ip = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0]));
+		is_initialized = true;
+	}
+
 
 	const int x0_coord = LCD_WIDTH / 4;
 	const int y0_counter = LCD_HEIGHT - 40;
-   lcd_put_string(local_ip,x0_coord,y0_counter,Font_11x18,COLOR_RED,COLOR_BLACK);
+   	lcd_put_string(local_ip,x0_coord,y0_counter,Font_11x18,COLOR_RED,COLOR_BLACK);
 }
 
 void draw_counter_value()
