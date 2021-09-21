@@ -6,7 +6,6 @@
 #define BUF_SIZE 64
 #define GPIO_DIR "/sys/class/gpio"
 
-
 static int gpio_get_export_direction_fd(unsigned int gpio)
 {
 	int fd, len;
@@ -33,8 +32,7 @@ static int gpio_get_export_direction_fd(unsigned int gpio)
 int gpio_init_out(unsigned int gpio)
 {
 	int fd = gpio_get_export_direction_fd(gpio);
-	if(fd < 0)
-	{
+	if (fd < 0) {
 		perror("gpio_init_out");
 		return fd;
 	}
@@ -48,8 +46,7 @@ int gpio_init_out(unsigned int gpio)
 int gpio_init_in(unsigned int gpio)
 {
 	int fd = gpio_get_export_direction_fd(gpio);
-	if(fd < 0)
-	{
+	if (fd < 0) {
 		perror("gpio_init_in");
 		return fd;
 	}
@@ -115,5 +112,4 @@ int gpio_get_value(unsigned int gpio)
 	char input_port_value = 0;
 	lseek(fd, 0, SEEK_SET);
 	read(fd, &input_port_value, sizeof(char));
-
 }

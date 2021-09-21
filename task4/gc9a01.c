@@ -248,19 +248,17 @@ void lcd_put_string(const char *string, uint16_t x, uint16_t y, FontDef font,
 	uint16_t local_x = x;
 	uint16_t local_y = y;
 
-	for(int i = 0; i< length_of_string; ++i)
-	{
+	for (int i = 0; i < length_of_string; ++i) {
 		bool move_to_next_line = local_x + font.width > LCD_WIDTH;
 		bool stop_drawing = local_y + font.height > LCD_HEIGHT;
-		if(stop_drawing)
+		if (stop_drawing)
 			return;
 
-		if(move_to_next_line)
-		{
+		if (move_to_next_line) {
 			local_y += font.height;
 			local_x = x;
 		}
-		lcd_put_char(local_x, local_y,string[i],font,color,bgcolor);
+		lcd_put_char(local_x, local_y, string[i], font, color, bgcolor);
 		local_x += font.width;
 	}
 }
