@@ -1,14 +1,9 @@
-#
-# procfs example
-#
-
-TARGET = procfs_rw
-
+TARGET = strings_processor_module
 
 ifneq ($(KERNELRELEASE),)
 
 obj-m := $(TARGET).o
-$(TARGET)-objs := rw.o
+$(TARGET)-objs := strings_processor.o
 
 else
 
@@ -19,7 +14,8 @@ all:
 	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) modules
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) clean
-test:
-	- sudo insmod procfs_rw.ko
-	- sudo rmmod procfs_rw.ko
+test: all
+	- sudo insmod strings_processor_module.ko
+	- sudo rmmod strings_processor_module.ko
+	- dmesg | tail -10
 endif
