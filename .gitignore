@@ -57,3 +57,4 @@ exercise4/CMakeLists*.txt
 *.orig
 *.gz
 *.log
+.vscode
