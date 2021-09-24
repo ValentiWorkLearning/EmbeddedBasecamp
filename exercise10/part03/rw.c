@@ -11,12 +11,14 @@ MODULE_AUTHOR("valentyn Korniienko <valentyn.korniienko1@nure.ua>");
 MODULE_DESCRIPTION("Procfs strings converter");
 MODULE_VERSION("0.1");
 
+#include "convertor_mode_enum.h"
 
 #define MODULE_TAG      "strings_converter"
 #define PROC_DIRECTORY  "string_converter"
 #define PROC_FILENAME   "buffer"
 #define BUFFER_SIZE     1024
 
+ConversionMode_t active_conversion_mode = NoneConversion;
 
 static char *proc_buffer_in;
 static char *proc_buffer_out;
@@ -36,6 +38,11 @@ extern void deinit_converter_module(void);
 
 extern void reverse_string_words(const char* incoming_string, char* output_buffer);
 extern void to_upper_string(const char* incoming_string,char* output_buffer);
+extern void copy_string_to_output(const char* incoming_string,char* output_buffer);
+
+extern int init_sysfs_handler(void);
+extern void sysfs_handler_cleanup(void);
+extern void register_on_conversion_mode_changed_cb(conversion_mode_changed_cb_t callback);
 
 static struct proc_ops proc_fops = {
     .proc_read  = procfs_read_callback,
@@ -52,6 +59,10 @@ static int create_buffer(char** p_buffer)
     return 0;
 }
 
+static void handle_conversion_mode_changed(ConversionMode_t conversion_mode)
+{
+    active_conversion_mode = conversion_mode;
+}
 
 static void cleanup_buffer(char* p_buffer)
 {
@@ -135,7 +146,21 @@ static ssize_t procfs_write_callback(struct file *file_p, const char __user *buf
     else
         printk(KERN_NOTICE MODULE_TAG "written %zu chars\n", msg_length);
 
-    reverse_string_words(proc_buffer_in,proc_buffer_out);
+    switch (active_conversion_mode)
+    {
+    case NoneConversion:
+        copy_string_to_output(proc_buffer_in,proc_buffer_out);
+        break;
+    case Flip:
+        reverse_string_words(proc_buffer_in,proc_buffer_out);
+        break;
+    case Uppercase:
+        to_upper_string(proc_buffer_in,proc_buffer_out);
+        break;
+    default:
+        copy_string_to_output(proc_buffer_in,proc_buffer_out);
+        break;
+    }
 
     return length;
 }
@@ -158,7 +183,8 @@ static int __init string_processor_init(void)
         goto error;
 
     init_converter_module();
-
+    init_sysfs_handler();
+    register_on_conversion_mode_changed_cb(&handle_conversion_mode_changed);
     printk(KERN_NOTICE MODULE_TAG "loaded\n");
     return 0;
 
@@ -167,8 +193,8 @@ error:
     remove_procfs_entries();
     cleanup_buffer(proc_buffer_in);
     cleanup_buffer(proc_buffer_out);
-    init_converter_module();
-
+    deinit_converter_module();
+    sysfs_handler_cleanup();
     return err;
 }
 
@@ -178,6 +204,8 @@ static void __exit string_processor_exit(void)
     remove_procfs_entries();
     cleanup_buffer(proc_buffer_in);
     cleanup_buffer(proc_buffer_out);
+    deinit_converter_module();
+    sysfs_handler_cleanup();
     printk(KERN_NOTICE MODULE_TAG "exited\n");
 }
 

@@ -81,3 +81,10 @@ void to_upper_string(const char* incoming_string,char* output_buffer)
     }
     output_buffer[source_len+1] = '\0';
 }
+
+void copy_string_to_output(const char* incoming_string,char* output_buffer)
+{
+    if(incoming_string == NULL || output_buffer == NULL)
+        return;
+    strcpy(output_buffer,incoming_string);
+}
