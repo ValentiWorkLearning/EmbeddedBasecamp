@@ -52,3 +52,9 @@ Mkfile.old
 dkms.conf
 *.dwo
 *bin/*
+build-exercise4-Desktop_Qt_5_15_1_GCC_64bit-Debug/*
+exercise4/CMakeLists*.txt
+*.orig
+*.gz
+*.log
+.vscode
