@@ -117,6 +117,8 @@ static ssize_t procfs_write_callback(struct file *file_p, const char __user *buf
     else
         printk(KERN_NOTICE MODULE_TAG "written %zu chars\n", msg_length);
 
+    if(value_changed_cb)
+        value_changed_cb(proc_buffer);
 
     return length;
 }

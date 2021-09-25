@@ -18,6 +18,32 @@ extern void procfs_handler_deinit(void);
 extern int sysfs_handler_init(void);
 extern void sysfs_handler_cleanup(void);
 
+
+extern void register_procfs_data_arrived_callback(conversion_value_changed_cb);
+extern void set_conversion_changed_cb(conversion_factor_changed_cb callback);
+
+extern void set_result_ready_cb(conversion_result_ready_cb);
+extern void convert_currency(int to_convert);
+extern void set_conversion_factor(int new_factor);
+
+
+static void conversion_factor_changed_handler(int new_factor)
+{
+    set_conversion_factor(new_factor);
+}
+
+static void conversion_result_ready(int full, int remainder )
+{
+    printk("conversion_result_ready %d, %d\n", full,remainder);
+}
+static void handle_procfs_data_arrived(char* new_value_to_convert)
+{
+    printk(KERN_ERR "handle_procfs_data_arrived");
+    int32_t new_value = 0;
+    kstrtos32(new_value_to_convert,10,&new_value);
+    convert_currency(new_value);
+}
+
 static int __init currency_converter_init(void)
 {
     int err = init_procfs_handler();
@@ -27,6 +53,10 @@ static int __init currency_converter_init(void)
     if (err)
         goto error;
     return err;
+
+    set_conversion_changed_cb(&conversion_factor_changed_handler);
+    set_result_ready_cb(&conversion_result_ready);
+    register_procfs_data_arrived_callback(&handle_procfs_data_arrived);
 error:
     sysfs_handler_cleanup();
     procfs_handler_deinit();

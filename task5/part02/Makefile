@@ -3,7 +3,7 @@ TARGET = currency_convertor_module
 ifneq ($(KERNELRELEASE),)
 
 obj-m := $(TARGET).o
-$(TARGET)-objs := currency_conveter.o procfs_handler.o sysfs_handler.o
+$(TARGET)-objs := currency_conveter.o  module_main.o procfs_handler.o sysfs_handler.o
 
 else
 

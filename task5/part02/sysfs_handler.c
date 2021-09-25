@@ -7,11 +7,20 @@
 #include <linux/init.h>
 #include <linux/device/class.h>
 
+#include "currency_converter_common.h"
+
+static conversion_factor_changed_cb on_conversion_factor_changed_cb;
+
 #define LEN_MSG 160
 static char buf_msg[LEN_MSG + 1] = "Hello from module!\n";
 
+void set_conversion_changed_cb(conversion_factor_changed_cb callback)
+{
+    on_conversion_factor_changed_cb = callback;
+}
+
 /* sysfs show() method. Calls the show() method corresponding to the individual sysfs file */
-static ssize_t xxx_show(struct class *class, struct class_attribute *attr, char *buf)
+static ssize_t curreccy_factor_show(struct class *class, struct class_attribute *attr, char *buf)
 {
     strcpy(buf, buf_msg);
     printk("read %ld\n", (long)strlen(buf));
@@ -19,13 +28,14 @@ static ssize_t xxx_show(struct class *class, struct class_attribute *attr, char 
 }
 
 /* sysfs store() method. Calls the store() method corresponding to the individual sysfs file */
-static ssize_t xxx_store(struct class *class, struct class_attribute *attr, const char *buf, size_t count)
+static ssize_t curreccy_factor_store(struct class *class, struct class_attribute *attr, const char *buf, size_t count)
 {
     printk("write %ld\n", (long)count);
     strncpy(buf_msg, buf, count);
     buf_msg[count] = '\0';
-    int conversion_factor = 0;
-    parseFactorValue(&conversion_factor);
+
+    int32_t conversion_factor = 0;
+    kstrtos32(buf_msg,10,&conversion_factor);
 
     if(conversion_factor <= 0 )
         return count;
