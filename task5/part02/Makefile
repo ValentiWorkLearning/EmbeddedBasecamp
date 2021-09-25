@@ -1,10 +1,18 @@
-obj-m += converter_currency.o
+TARGET = currency_convertor_module
+
+ifneq ($(KERNELRELEASE),)
+
+obj-m := $(TARGET).o
+$(TARGET)-objs := currency_conveter.o procfs_handler.o sysfs_handler.o
+
+else
+
+#KERNELDIR := $(BUILD_KERNEL)
+KERNELDIR := "/lib/modules/$(shell uname -r)/build"
+.PHONY: all clean
 all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) modules
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-test:
-	sudo dmesg -C
-	sudo insmod converter_currency.ko uahToEuro=31 uahAmount=200
-	sudo rmmod converter_currency.ko
-	dmesg
+	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) clean
+
+endif

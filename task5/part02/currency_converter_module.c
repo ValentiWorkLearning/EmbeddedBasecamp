@@ -26,9 +26,11 @@ static int __init currency_converter_init(void)
     err = sysfs_handler_init();
     if (err)
         goto error;
+    return err;
 error:
     sysfs_handler_cleanup();
     procfs_handler_deinit();
+    return err;
 }
 
 static void __exit currency_converter_exit(void)
