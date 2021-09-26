@@ -20,7 +20,7 @@ void set_conversion_changed_cb(conversion_factor_changed_cb callback)
 }
 
 /* sysfs show() method. Calls the show() method corresponding to the individual sysfs file */
-static ssize_t curreccy_factor_show(struct class *class, struct class_attribute *attr, char *buf)
+static ssize_t currency_factor_show(struct class *class, struct class_attribute *attr, char *buf)
 {
     strcpy(buf, buf_msg);
     printk("read %ld\n", (long)strlen(buf));
@@ -28,7 +28,7 @@ static ssize_t curreccy_factor_show(struct class *class, struct class_attribute 
 }
 
 /* sysfs store() method. Calls the store() method corresponding to the individual sysfs file */
-static ssize_t curreccy_factor_store(struct class *class, struct class_attribute *attr, const char *buf, size_t count)
+static ssize_t currency_factor_store(struct class *class, struct class_attribute *attr, const char *buf, size_t count)
 {
     printk("write %ld\n", (long)count);
     strncpy(buf_msg, buf, count);
@@ -47,7 +47,7 @@ static ssize_t curreccy_factor_store(struct class *class, struct class_attribute
     return count;
 }
 
-CLASS_ATTR_RW(curreccy_factor);
+CLASS_ATTR_RW(currency_factor);
 
 static struct class *currency_factor_class;
 
@@ -57,7 +57,7 @@ int sysfs_handler_init(void)
     currency_factor_class = class_create(THIS_MODULE, "currency-class");
     if (IS_ERR(currency_factor_class))
         printk("bad class create\n");
-    res = class_create_file(currency_factor_class, &class_attr_curreccy_factor);
+    res = class_create_file(currency_factor_class, &class_attr_currency_factor);
     /* <linux/device.h>
 extern int __must_check class_create_file(struct class *class, const struct class_attribute *attr); */
     printk("'curreccy_factor' entry initialized\n");
@@ -68,7 +68,7 @@ void sysfs_handler_cleanup(void)
 {
     /* <linux/device.h>
 extern void class_remove_file(struct class *class, const struct class_attribute *attr); */
-    class_remove_file(currency_factor_class, &class_attr_curreccy_factor);
+    class_remove_file(currency_factor_class, &class_attr_currency_factor);
     class_destroy(currency_factor_class);
     return;
 }

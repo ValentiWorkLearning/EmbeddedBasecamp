@@ -14,5 +14,15 @@ all:
 	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) modules
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) clean
+test:
+	- sudo insmod currency_convertor_module.ko
 
+	- echo 12345 > /proc/conversion_value/value
+	- cat /proc/conversion_value/value
+	- sudo sh -c "echo 43 >> /sys/class/currency-class/currency_factor"
+	- cat /proc/conversion_value/value
+
+	- dmesg | tail -10
+
+	- sudo rmmod currency_convertor_module
 endif
