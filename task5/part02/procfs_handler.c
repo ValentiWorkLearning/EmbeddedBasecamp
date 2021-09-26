@@ -96,6 +96,7 @@ static ssize_t procfs_read_callback(struct file *file_p, char __user *buffer, si
 
 static ssize_t procfs_write_callback(struct file *file_p, const char __user *buffer, size_t length, loff_t *offset)
 {
+    memset(proc_buffer,0,BUFFER_SIZE);
     size_t msg_length;
     size_t left;
 
@@ -117,6 +118,7 @@ static ssize_t procfs_write_callback(struct file *file_p, const char __user *buf
     else
         printk(KERN_NOTICE MODULE_TAG "written %zu chars\n", msg_length);
 
+    printk(KERN_NOTICE "Current procfs buffer is: %s", proc_buffer);
     if(value_changed_cb)
         value_changed_cb(proc_buffer);
 
@@ -155,5 +157,16 @@ void procfs_handler_deinit(void)
 
 void register_procfs_data_arrived_callback(conversion_value_changed_cb callback)
 {
+    printk(KERN_NOTICE MODULE_TAG "procfs register_procfs_data_arrived_callback\n");
     value_changed_cb = callback;
+}
+
+
+char* get_proc_output_buffer(void)
+{
+    return proc_buffer;
+}
+int get_procfs_output_buffer_size(void)
+{
+    return BUFFER_SIZE;
 }
