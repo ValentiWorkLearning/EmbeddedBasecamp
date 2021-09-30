@@ -28,7 +28,7 @@ int init_spi_wrapper(int spi_bus_index)
 		spi_new_device(spi_module_block, &gc9a01_spi_board_info);
 	if (!spi_device_master) {
 		printk(KERN_ERR "FAILED to create spi_device_master.\n");
-		return -ENODEV;
+		return -IO;
 	}
 
 	return 0;
