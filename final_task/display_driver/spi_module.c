@@ -38,7 +38,7 @@ error:
 
 // https://wiki.t-firefly.com/en/AIO-3288C/driver_spi.html
 //https://android.googlesource.com/kernel/msm/+/android-msm-flo-3.4-kitkat-mr0/drivers/staging/iio/dds/ad9910.c
-int spi_wrapper_write(uint8_t *tx_buffer, uint16_t len)
+int spi_wrapper_write(uint8_t *tx_buffer, size_t len)
 {
 	if (!spi_device_master)
 		return -1;

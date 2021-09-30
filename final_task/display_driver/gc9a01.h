@@ -14,7 +14,6 @@
 #define COLOR_COLOR565(r, g, b)                                                \
 	(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3))
 
-#define LCD_PIN_CS 25
 #define LCD_PIN_RESET 27
 #define LCD_PIN_DC 22
 

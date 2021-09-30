@@ -4,15 +4,13 @@
 #include <linux/types.h>
 #include <linux/string.h>
 #include <linux/delay.h>
-
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+#include <linux/slab.h>
 
 #define GPIO_PIN_RESET LCD_PIN_RESET
 #define GPIO_PIN_DC LCD_PIN_DC
-#define GPIO_PIN_CS LCD_PIN_CS
 #define DATA_SIZE 1000
 
-static uint16_t frame_buffer[LCD_WIDTH * LCD_HEIGHT];
+static uint16_t* frame_buffer;
 
 // clang-format off
 #define COMMANDS_SIZE 328
@@ -108,11 +106,17 @@ int init_display(int spi_module_index)
 {
 	gpio_module_init_out(GPIO_PIN_RESET);
 	gpio_module_init_out(GPIO_PIN_DC);
-	gpio_module_init_out(GPIO_PIN_CS);
 	lcd_reset();
 	if (init_spi_wrapper(spi_module_index)) {
 		printk(KERN_ERR
 		       "Failed to initialize display. SPI module initialization failed\n");
+		return -1;
+	}
+	frame_buffer = kmalloc(LCD_WIDTH*LCD_HEIGHT*sizeof(uint16_t),GFP_KERNEL);
+	if(frame_buffer == NULL)
+	{
+		printk(KERN_ERR
+		       "Failed to allocate display framebuffer\n");
 		return -1;
 	}
 	init_display_internal();
@@ -125,17 +129,10 @@ static void lcd_write_command(uint8_t cmd)
 	spi_wrapper_write(&cmd, sizeof(cmd));
 }
 
-static void lcd_write_data(const uint8_t *buff, unsigned long buff_size)
+static void lcd_write_data(const uint8_t *buff, size_t buff_size)
 {
-	unsigned long i = 0;
-	uint8_t *p_write_buffer = buff;
 	gpio_module_set_value(LCD_PIN_DC, 1);
-	while (buff_size > DATA_SIZE) {
-		spi_wrapper_write(p_write_buffer + i, DATA_SIZE);
-		i += DATA_SIZE;
-		buff_size -= DATA_SIZE;
-	}
-	spi_wrapper_write(p_write_buffer + i, buff_size);
+	spi_wrapper_write(buff, buff_size);
 }
 
 static void init_display_internal(void)
@@ -272,13 +269,13 @@ void lcd_reset(void)
 	gpio_module_set_value(GPIO_PIN_RESET, 0);
 	mdelay(5000);
 	gpio_module_set_value(GPIO_PIN_RESET, 1);
-	gpio_module_set_value(GPIO_PIN_CS, 0);
 }
 
 void lcd_deinit(void)
 {
+	if(frame_buffer)
+		kfree(frame_buffer);
 	deinit_spi_wrapper();
 	gpio_module_free(GPIO_PIN_RESET);
 	gpio_module_free(GPIO_PIN_DC);
-	gpio_module_free(GPIO_PIN_CS);
 }

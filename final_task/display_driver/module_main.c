@@ -2,7 +2,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/sched.h>
-
+#include <linux/delay.h>
 #include "gc9a01.h"
 
 MODULE_LICENSE("Dual BSD/GPL");
@@ -23,6 +23,10 @@ static int __init display_module_init(void)
 	lcd_set_address_window(0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1);
 
 	lcd_fill_screen(COLOR_BLUE);
+	lcd_fill_rectangle(0, 0, 30, 30, COLOR_GREEN);
+	lcd_fill_rectangle(20, 20, 50, 50, COLOR_RED);
+	lcd_put_string("Test KERNEL mode", 60, 60, Font_11x18, COLOR_RED,
+		       COLOR_BLACK);
 	lcd_update_screen();
 	return 0;
 }
