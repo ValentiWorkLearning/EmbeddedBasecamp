@@ -97,8 +97,8 @@ static const uint8_t Commands[COMMANDS_SIZE] =
     ,   0x35,   0,      0
     ,   0x21,   0,      0
 
-    ,   0x11,   0,      1
-    ,   0x29,   0,      1
+    ,   0x11,   0,      120
+    ,   0x29,   0,      120
 };
 // clang-format on
 
@@ -153,7 +153,7 @@ static void init_display_internal(void)
 			pBuffer += (NumArgs - 1);
 		}
 		if (Delay)
-			udelay(Delay);
+			mdelay(Delay);
 	}
 }
 
@@ -270,7 +270,7 @@ void lcd_put_string(const char *string, uint16_t x, uint16_t y, FontDef font,
 void lcd_reset(void)
 {
 	gpio_module_set_value(GPIO_PIN_RESET, 0);
-	udelay(5000);
+	mdelay(5000);
 	gpio_module_set_value(GPIO_PIN_RESET, 1);
 	gpio_module_set_value(GPIO_PIN_CS, 0);
 }
