@@ -104,14 +104,19 @@ static const uint8_t Commands[COMMANDS_SIZE] =
 
 static void init_display_internal(void);
 
-void init_display(int spi_module_index)
+int init_display(int spi_module_index)
 {
 	gpio_module_init_out(GPIO_PIN_RESET);
 	gpio_module_init_out(GPIO_PIN_DC);
 	gpio_module_init_out(GPIO_PIN_CS);
 	lcd_reset();
-	init_spi_wrapper(spi_module_index);
+	if (!init_spi_wrapper(spi_module_index)) {
+		printk(KERN_ERR
+		       "Failed to initialize display. SPI module initialization failed\n");
+		return -ENODEV;
+	}
 	init_display_internal();
+	return 0;
 }
 
 static void lcd_write_command(uint8_t cmd)

@@ -15,7 +15,15 @@ module_param(spi_bus_index, int, S_IRUGO);
 
 static int __init display_module_init(void)
 {
-	init_display(spi_bus_index);
+	if (!init_display(spi_bus_index)) {
+		printk(KERN_INFO "Display initizization error \n");
+		return -1;
+	}
+	printk(KERN_INFO "LCD init ok\n");
+	lcd_set_address_window(0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1);
+
+	lcd_fill_screen(COLOR_BLUE);
+	lcd_update_screen();
 	return 0;
 }
 

@@ -40,6 +40,8 @@ error:
 //https://android.googlesource.com/kernel/msm/+/android-msm-flo-3.4-kitkat-mr0/drivers/staging/iio/dds/ad9910.c
 int spi_wrapper_write(uint8_t *tx_buffer, uint16_t len)
 {
+	if (!spi_device_master)
+		return -1;
 	struct spi_transfer spi_transaction_item = { .tx_buf = tx_buffer,
 						     .len = len };
 	struct spi_message spi_message;
@@ -50,6 +52,7 @@ int spi_wrapper_write(uint8_t *tx_buffer, uint16_t len)
 
 void deinit_spi_wrapper(void)
 {
-	spi_unregister_device(spi_device_master);
+	if (spi_device_master)
+		spi_unregister_device(spi_device_master);
 	printk(KERN_INFO "Unregistred spi driver.\n");
 }
