@@ -14,4 +14,8 @@ all:
 	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) modules
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) clean
+test: all
+	sudo insmod gc9a01_module.ko
+	dmesg | tail -10
+	sudo rmmod gc9a01_module
 endif
