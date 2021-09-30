@@ -110,7 +110,7 @@ int init_display(int spi_module_index)
 	gpio_module_init_out(GPIO_PIN_DC);
 	gpio_module_init_out(GPIO_PIN_CS);
 	lcd_reset();
-	if (!init_spi_wrapper(spi_module_index)) {
+	if (init_spi_wrapper(spi_module_index)) {
 		printk(KERN_ERR
 		       "Failed to initialize display. SPI module initialization failed\n");
 		return -1;

@@ -8,7 +8,7 @@ static struct spi_board_info gc9a01_spi_board_info = {
 	.modalias = "gc9a01_spi_driver",
 	.max_speed_hz = 400000,
 	.bus_num = 0,
-	.chip_select = 1,
+	.chip_select = 0,
 	.mode = SPI_MODE_0
 };
 static struct spi_device *spi_device_master;
@@ -28,7 +28,7 @@ int init_spi_wrapper(int spi_bus_index)
 		spi_new_device(spi_module_block, &gc9a01_spi_board_info);
 	if (!spi_device_master) {
 		printk(KERN_ERR "FAILED to create spi_device_master.\n");
-		return -IO;
+		return -ENODEV;
 	}
 
 	return 0;

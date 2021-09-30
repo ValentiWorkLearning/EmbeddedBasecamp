@@ -15,7 +15,7 @@ module_param(spi_bus_index, int, S_IRUGO);
 
 static int __init display_module_init(void)
 {
-	if (!init_display(spi_bus_index)) {
+	if (init_display(spi_bus_index)) {
 		printk(KERN_INFO "Display initizization error \n");
 		return -1;
 	}
