@@ -20,8 +20,14 @@ module_param(memory_buffer_size, int, S_IRUGO);
 static unsigned char *device_memory_buffer = NULL;
 static ssize_t chardev_buffer_rw_holder = 0;
 
+static size_t total_messages_count = 0;
+// procfs section
 extern int initialize_procfs_handler(void);
 extern void cleanup_procfs_entries(void);
+
+extern void update_buffer_total_size(size_t current_buffer_size);
+extern void update_remaining_buffer_size(size_t remainig_buffer_size);
+extern void update_total_messages_count(size_t total_messages_count);
 
 // character device section
 
@@ -37,7 +43,7 @@ static ssize_t messenger_chardev_read(struct file *file, char *buf,
 
 	printk(KERN_INFO "Messenger: read from file %s\n",
 	       file->f_path.dentry->d_iname);
-	printk(KERN_INFO "Current chardev rw holder: %ld",
+	printk(KERN_INFO "Current chardev rw holder: %d",
 	       chardev_buffer_rw_holder);
 
 	if (count > chardev_buffer_rw_holder)
@@ -54,7 +60,10 @@ static ssize_t messenger_chardev_read(struct file *file, char *buf,
 	}
 	chardev_buffer_rw_holder = 0; /* eof for cat */
 
-	printk(KERN_INFO "Messenger: %ld bytes read\n", count);
+	printk(KERN_INFO "Messenger: %zu bytes read\n", count);
+
+	update_remaining_buffer_size(memory_buffer_size);
+
 	return count;
 }
 
@@ -65,7 +74,7 @@ static ssize_t messenger_chardev_write(struct file *filep, const char *buffer,
 
 	printk(KERN_INFO "Messenger: write to file %s\n",
 	       filep->f_path.dentry->d_iname);
-	printk(KERN_INFO "Called chardev write with len : %ld", len);
+	printk(KERN_INFO "Called chardev write with len : %d", len);
 
 	chardev_buffer_rw_holder = len;
 	if (chardev_buffer_rw_holder > memory_buffer_size)
@@ -78,8 +87,13 @@ static ssize_t messenger_chardev_write(struct file *filep, const char *buffer,
 		return -EFAULT;
 	}
 
-	printk(KERN_INFO "Messenger: %ld bytes written\n",
+	printk(KERN_INFO "Messenger: %d bytes written\n",
 	       chardev_buffer_rw_holder);
+
+	update_remaining_buffer_size(memory_buffer_size - len);
+	total_messages_count += 1;
+	update_total_messages_count(total_messages_count);
+
 	return chardev_buffer_rw_holder;
 }
 
@@ -141,6 +155,11 @@ static int __init chardev_init(void)
 	       MAJOR(device), MIN_MINOR_NUMBER, MINOR(device));
 
 	initialize_procfs_handler();
+
+	update_buffer_total_size(memory_buffer_size);
+	update_remaining_buffer_size(memory_buffer_size);
+	update_total_messages_count(total_messages_count);
+
 	return 0;
 err:
 	if (device_memory_buffer)

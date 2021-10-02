@@ -1,7 +1,7 @@
 #include <linux/proc_fs.h>
 #include "module_common.h"
 
-#define PROCFS_BUFFER_FORMAT_SIZE 10
+#define PROCFS_BUFFER_FORMAT_SIZE 64
 #define PROCFS_REQUIRED_PARAMS 3
 
 static char proc_buffer[PROCFS_REQUIRED_PARAMS][PROCFS_BUFFER_FORMAT_SIZE];
@@ -124,7 +124,10 @@ static ssize_t proc_buffer_total_size_read(struct file *file_p,
 	else
 		printk(KERN_NOTICE MODULE_TAG "read %zu chars\n", length);
 
-	return length - left;
+	int read_length = length - left;
+	if (read_length == 0)
+		proc_msg_read_pos[MESSENGER_TOTAL_SIZE_PARAM] = 0;
+	return read_length;
 }
 static ssize_t proc_buffer_remaining_size_read(struct file *file_p,
 					       char __user *buffer,
@@ -152,7 +155,10 @@ static ssize_t proc_buffer_remaining_size_read(struct file *file_p,
 	else
 		printk(KERN_NOTICE MODULE_TAG "read %zu chars\n", length);
 
-	return length - left;
+	int read_length = length - left;
+	if (read_length == 0)
+		proc_msg_read_pos[MESSENGER_REMAINING_SIZE_PARAM] = 0;
+	return read_length;
 }
 static ssize_t proc_total_messages_count_read(struct file *file_p,
 					      char __user *buffer,
@@ -180,17 +186,35 @@ static ssize_t proc_total_messages_count_read(struct file *file_p,
 	else
 		printk(KERN_NOTICE MODULE_TAG "read %zu chars\n", length);
 
-	return length - left;
+	int read_length = length - left;
+	if (read_length == 0)
+		proc_msg_read_pos[MESSENGER_MESSAGES_COUNT_PARAM] = 0;
+	return read_length;
 }
 
-void update_buffer_total_size(ssize_t current_buffer_size)
+void update_buffer_total_size(size_t current_buffer_size)
 {
+	snprintf(proc_buffer[MESSENGER_TOTAL_SIZE_PARAM],
+		 PROCFS_BUFFER_FORMAT_SIZE, "Full buffer: %zu \n",
+		 current_buffer_size);
+	proc_msg_length[MESSENGER_TOTAL_SIZE_PARAM] =
+		strlen(proc_buffer[MESSENGER_TOTAL_SIZE_PARAM]);
 }
 
-void update_remaining_buffer_size(ssize_t remainig_buffer_size)
+void update_remaining_buffer_size(size_t remainig_buffer_size)
 {
+	snprintf(proc_buffer[MESSENGER_REMAINING_SIZE_PARAM],
+		 PROCFS_BUFFER_FORMAT_SIZE, "Remaining buffer: %zu \n",
+		 remainig_buffer_size);
+	proc_msg_length[MESSENGER_REMAINING_SIZE_PARAM] =
+		strlen(proc_buffer[MESSENGER_REMAINING_SIZE_PARAM]);
 }
 
-void update_total_messages_count(ssize_t total_messages_count)
+void update_total_messages_count(size_t total_messages_count)
 {
+	snprintf(proc_buffer[MESSENGER_MESSAGES_COUNT_PARAM],
+		 PROCFS_BUFFER_FORMAT_SIZE, "Messages count: %zu \n",
+		 total_messages_count);
+	proc_msg_length[MESSENGER_MESSAGES_COUNT_PARAM] =
+		strlen(proc_buffer[MESSENGER_MESSAGES_COUNT_PARAM]);
 }
