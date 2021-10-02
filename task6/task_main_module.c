@@ -82,14 +82,15 @@ static char *messenger_devnode(struct device *dev, umode_t *mode)
 {
     if (!mode)
         return NULL;
-    if (dev->devt == MKDEV(device_major_number, 0))
-    {
-        *mode = 0666;
-    }
+    
+    *mode = 0666;
 
     printk(KERN_INFO "Messenger called with: %d\n", dev->devt);
     return NULL;
 };
+
+
+
 
 static int __init chardev_init(void)
 {
@@ -114,10 +115,11 @@ static int __init chardev_init(void)
     }
 
     devclass = class_create(THIS_MODULE, MODULE_TITLE);
-    device_create(devclass, NULL, device, NULL, "%s_%d", "messenger", MIN_MINOR_NUMBER);
-    devclass->devnode = messenger_devnode;
 
+    devclass->devnode = messenger_devnode;
     device_memory_buffer = kmalloc(memory_buffer_size, GFP_KERNEL);
+
+    device_create(devclass, NULL, device, NULL, "%s_%d", "messenger", MIN_MINOR_NUMBER);
 
     printk(KERN_INFO "======== module installed %d:[%d-%d] ===========\n",
            MAJOR(device), MIN_MINOR_NUMBER, MINOR(device));
