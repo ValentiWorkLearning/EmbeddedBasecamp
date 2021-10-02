@@ -7,6 +7,7 @@
 #include <linux/types.h>
 #include <linux/fs.h>
 
+#include "module_common.h"
 //https://olegkutkov.me/2018/03/14/simple-linux-character-device-driver/
 
 static int memory_buffer_size = 1024;
@@ -21,6 +22,8 @@ static unsigned char *device_memory_buffer = NULL;
 static ssize_t chardev_buffer_rw_holder = 0;
 
 static size_t total_messages_count = 0;
+
+
 // procfs section
 extern int initialize_procfs_handler(void);
 extern void cleanup_procfs_entries(void);
@@ -29,8 +32,15 @@ extern void update_buffer_total_size(size_t current_buffer_size);
 extern void update_remaining_buffer_size(size_t remainig_buffer_size);
 extern void update_total_messages_count(size_t total_messages_count);
 
-// character device section
 
+//sysfs section
+
+extern int sysfs_handler_init(void);
+extern void sysfs_handler_cleanup(void);
+extern void set_on_clear_requested_callback(clear_message_buffer_cb callback);
+
+
+// character device section
 static struct cdev hcdev;
 static struct class *devclass;
 
@@ -97,6 +107,14 @@ static ssize_t messenger_chardev_write(struct file *filep, const char *buffer,
 	return chardev_buffer_rw_holder;
 }
 
+
+void cleanup_message_buffer(void)
+{
+	chardev_buffer_rw_holder = 0;
+	memset(device_memory_buffer,0,memory_buffer_size * sizeof(*device_memory_buffer));
+	update_remaining_buffer_size(memory_buffer_size);
+}
+
 struct file_operations chardev_file_operations = {
 	.read = messenger_chardev_read,
 	.write = messenger_chardev_write,
@@ -155,11 +173,13 @@ static int __init chardev_init(void)
 	       MAJOR(device), MIN_MINOR_NUMBER, MINOR(device));
 
 	initialize_procfs_handler();
+	sysfs_handler_init();
 
 	update_buffer_total_size(memory_buffer_size);
 	update_remaining_buffer_size(memory_buffer_size);
 	update_total_messages_count(total_messages_count);
 
+	set_on_clear_requested_callback(cleanup_message_buffer);
 	return 0;
 err:
 	if (device_memory_buffer)
@@ -178,6 +198,7 @@ static void __exit chardev_exit(void)
 	unregister_chrdev_region(MKDEV(device_major_number, MIN_MINOR_NUMBER),
 				 MAX_DEVICE_COUNT);
 
+	sysfs_handler_cleanup();
 	cleanup_procfs_entries();
 
 	if (device_memory_buffer)
