@@ -4,6 +4,8 @@
 
 MODULE_LICENSE("GPL");
 
+// Just a simple displaying of the HZ+ Jiffies value for the corresponding system
+
 static int __init hello_init( void ) {
    unsigned long j;
    u64 i;

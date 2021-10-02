@@ -25,7 +25,7 @@ struct timer_list my_timer;
 static void timer_function(struct timer_list* data){
 	printk("Time up");
 	// modify the timer for next time
-	mod_timer(&my_timer, jiffies + HZ / 2);
+	mod_timer(&my_timer, jiffies + HZ / 2); // mod_timer_pending should be used instead. This will cause the error while inserting the driver
 }
 
 /*

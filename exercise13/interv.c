@@ -6,6 +6,8 @@ MODULE_LICENSE("GPL");
 
 static u32 j;
 
+// A Simple counter during the lifetime of the driver. Shows the number of the system ticks during the specified period
+
 static int __init init( void ) {
    j = jiffies; 
    printk( KERN_INFO "module: jiffies on start = %X\n", j );   

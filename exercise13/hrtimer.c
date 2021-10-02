@@ -29,7 +29,7 @@ static int __init timer_init(void) {
 static void __exit timer_exit(void) {
 	int ret;
   	ret = hrtimer_cancel( &hr_timer );
-  	if (ret) printk("The timer was still in use...\n");
+  	if (ret) printk("The timer was still in use...\n"); //  Becasuse the timer will be active till the hrtimer_cancel call
   	printk("HR Timer module uninstalling\n");
 	
 }
