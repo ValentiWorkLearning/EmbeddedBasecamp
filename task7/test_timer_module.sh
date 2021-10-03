@@ -9,3 +9,5 @@ echo 0 > /sys/class/timer-mod-sys/display_mode
 sleep 2
 cat /proc/time_processing_module/last_accessed
 sudo rmmod task_timer_module
+sleep 5
+dmesg | tail -10

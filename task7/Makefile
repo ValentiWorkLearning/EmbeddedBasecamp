@@ -3,7 +3,7 @@ TARGET = task_timer_module
 ifneq ($(KERNELRELEASE),)
 
 obj-m := $(TARGET).o
-$(TARGET)-objs := module_main.o procfs_handler.o sysfs_handler.o timer_track_module.o
+$(TARGET)-objs := module_main.o procfs_handler.o sysfs_handler.o timer_track_module.o random_timer_handler.o
 
 else
 BUILD_KERNEL = /home/valenti/Development/Embedded/exercise8/kernel_build

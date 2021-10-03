@@ -11,6 +11,7 @@
 #include "sysfs_handler.h"
 #include "procfs_handler.h"
 #include "timer_track_module.h"
+#include "random_timer_handler.h"
 
 static display_time_mode_t current_displaying_mode = passed_seconds;
 
@@ -30,13 +31,13 @@ static void format_procfs_passed_fulldate(void)
 {
 	char *procfs_last_used_buffer = procfs_get_last_used_buffer();
 	size_t total_buffer_size = procfs_get_last_used_total_buffer_size();
-	
-    struct tm fill_up;
-    timer_handler_get_last_used_as_tm(&fill_up);
+
+	struct tm fill_up;
+	timer_handler_get_last_used_as_tm(&fill_up);
 
 	snprintf(procfs_last_used_buffer, total_buffer_size,
-		 "Full date last procfs use: %u:%u:%u \n", fill_up.tm_hour, fill_up.tm_min,
-		 fill_up.tm_sec);
+		 "Full date last procfs use: %u:%u:%u \n", fill_up.tm_hour,
+		 fill_up.tm_min, fill_up.tm_sec);
 	procfs_set_last_used_message_size(strlen(procfs_last_used_buffer));
 }
 
@@ -69,20 +70,28 @@ void procfs_entry_request_absolut_time_handler(void)
 		strlen(absolute_time_value_buffer));
 }
 
-
 void displaying_mode_changed_handler(display_time_mode_t new_mode)
 {
-    current_displaying_mode = new_mode;
+	current_displaying_mode = new_mode;
 }
+
+void new_random_value_generated_handler(int random_value)
+{
+	printk(KERN_NOTICE MODULE_TAG "Random arrived: %d \n", random_value);
+}
+
 static int __init time_track_module_init(void)
 {
 	sysfs_handler_init();
 	init_procfs_handler();
 	init_timer_module();
+	init_random_timer();
 
-    set_mode_change_request_callback(displaying_mode_changed_handler);
-
+	set_mode_change_request_callback(displaying_mode_changed_handler);
+	set_new_random_value_arrived_callback(
+		new_random_value_generated_handler);
 	set_procfs_entry_has_been_used_cb(procfs_entry_has_been_used_handler);
+
 	set_procfs_entry_request_absolute_current_time(
 		procfs_entry_request_absolut_time_handler);
 	return 0;
@@ -90,6 +99,7 @@ static int __init time_track_module_init(void)
 
 static void __exit time_track_module_exit(void)
 {
+	deinit_random_timer();
 	cleanup_procfs_handler();
 	sysfs_handler_cleanup();
 	deinit_timer_module();
