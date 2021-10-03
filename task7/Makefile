@@ -16,9 +16,8 @@ all:
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) clean
 test:
-	sudo insmod task_timer_module.ko
-	cat /proc/time_processing_module/absolute_time
-	sudo rmmod task_timer_module
+	sh test_timer_module.sh
 deploy: all
 	scp -P 8022 task_timer_module.ko root@localhost:
+	scp -P 8022 test_timer_module.sh root@localhost:
 endif

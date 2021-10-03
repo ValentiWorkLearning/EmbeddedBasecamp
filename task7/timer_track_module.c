@@ -24,6 +24,12 @@ int timer_handler_get_seconds_last_used_value(void)
 	return seconds_since_last_use;
 }
 
+void timer_handler_get_last_used_as_tm(struct tm* tm_fill_up)
+{
+	time64_t diff_seconds = timer_handler_get_seconds_last_used_value();
+	time64_to_tm(diff_seconds,0,tm_fill_up);
+}
+
 void init_timer_module(void)
 {
 	timestamp_measure_begin = jiffies;

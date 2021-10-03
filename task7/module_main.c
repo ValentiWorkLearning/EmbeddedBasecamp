@@ -23,8 +23,6 @@ static void format_procfs_passed_seconds(void)
 	snprintf(procfs_last_used_buffer, total_buffer_size,
 		 "Seconds since last procfs use: %d \n",
 		 seconds_since_last_use);
-	printk(KERN_NOTICE MODULE_TAG "Secondsmessagelen:%d",
-	       strlen(procfs_last_used_buffer));
 	procfs_set_last_used_message_size(strlen(procfs_last_used_buffer));
 }
 
@@ -32,12 +30,13 @@ static void format_procfs_passed_fulldate(void)
 {
 	char *procfs_last_used_buffer = procfs_get_last_used_buffer();
 	size_t total_buffer_size = procfs_get_last_used_total_buffer_size();
-	uint32_t seconds_since_last_use =
-		timer_handler_get_seconds_last_used_value();
+	
+    struct tm fill_up;
+    timer_handler_get_last_used_as_tm(&fill_up);
 
 	snprintf(procfs_last_used_buffer, total_buffer_size,
-		 "Full date last procfs use: %u:%u:%u \n", 0, 0,
-		 seconds_since_last_use);
+		 "Full date last procfs use: %u:%u:%u \n", fill_up.tm_hour, fill_up.tm_min,
+		 fill_up.tm_sec);
 	procfs_set_last_used_message_size(strlen(procfs_last_used_buffer));
 }
 
@@ -70,11 +69,18 @@ void procfs_entry_request_absolut_time_handler(void)
 		strlen(absolute_time_value_buffer));
 }
 
+
+void displaying_mode_changed_handler(display_time_mode_t new_mode)
+{
+    current_displaying_mode = new_mode;
+}
 static int __init time_track_module_init(void)
 {
 	sysfs_handler_init();
 	init_procfs_handler();
 	init_timer_module();
+
+    set_mode_change_request_callback(displaying_mode_changed_handler);
 
 	set_procfs_entry_has_been_used_cb(procfs_entry_has_been_used_handler);
 	set_procfs_entry_request_absolute_current_time(
