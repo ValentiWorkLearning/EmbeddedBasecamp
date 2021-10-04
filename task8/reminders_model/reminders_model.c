@@ -212,6 +212,8 @@ void show_all_users()
 void show_all_reminders(void)
 {
     printf(__FUNCTION__);
+    printf("\n");
+
     reminder_t* reminder_it = NULL;
     list_for_each_entry(reminder_it,&reminders_list,list)
     {
@@ -256,5 +258,55 @@ void cleanup_reminders(void)
         reminder_it = list_entry(pos,reminder_t,list);
         list_del(pos);
         reminder_dtor(reminder_it);
+    }
+}
+
+
+static void handle_reminder_expired(reminder_t* reminder_it)
+{
+    if(reminder_it->ellapse_time == 0)
+    {
+        printf("Notification Alert! %s \n",reminder_it->notification_text);
+        list_del(&reminder_it->list);
+
+        user_t* user_it = reminder_it->belongs_to;
+        if(user_it)
+        {
+            reminder_t* reminder_it_user = NULL;
+            struct list_head* pos_user, *q_user;
+            bool found_notification_in_list = false;
+            list_for_each_safe(pos_user,q_user,&user_it->notifications_list)
+            {
+                reminder_it_user = list_entry(pos_user,reminder_t,user_notify_list);
+                if(reminder_it_user == reminder_it)
+                {
+                    found_notification_in_list = true;
+                    break;
+                }
+            }
+            if(found_notification_in_list)
+            {
+                list_del(pos_user);
+            }
+        }
+        reminder_dtor(reminder_it);
+    }
+}
+
+void handle_timer_tick(void)
+{
+    reminder_t* reminder_it = NULL;
+    struct list_head* pos, *q;
+    list_for_each_safe(pos,q,&reminders_list)
+    {
+        reminder_it = list_entry(pos,reminder_t,list);
+        if(reminder_it)
+        {
+            reminder_it->ellapse_time-=1;
+            if(reminder_it->ellapse_time == 0)
+            {
+                handle_reminder_expired(reminder_it);
+            }
+        }
     }
 }

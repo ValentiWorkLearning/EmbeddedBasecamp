@@ -19,4 +19,5 @@ void show_user_reminders(const char* user_name);
 
 void cleanup_users(void);
 void cleanup_reminders(void);
+void handle_timer_tick(void);
 #endif

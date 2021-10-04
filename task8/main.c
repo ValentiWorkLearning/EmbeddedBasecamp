@@ -16,7 +16,7 @@ void test1()
     show_all_users();
 
     add_user_reminder(user1,"Buy some food!",1000);
-    add_user_reminder(user1,"Buy some vodka!",100);
+    add_user_reminder(user1,"Buy some tomaaatos!",100);
     add_user_reminder(user1,"But extre beer",500);
     add_user_reminder(user3,"Buy cucumbers",40);
     add_user_reminder(user3,"Buy sausages",150);
@@ -58,7 +58,7 @@ void test3()
 {
     add_new_user(user1);
     add_user_reminder(user1,"Buy some food!",1000);
-    add_user_reminder(user1,"Buy some vodka!",100);
+    add_user_reminder(user1,"Buy some tomaaatos!",100);
 
     show_all_reminders();
 
@@ -70,11 +70,34 @@ void test3()
     cleanup_reminders();
 }
 
+void test4()
+{
+    add_new_user(user1);
+    add_user_reminder(user1,"Buy some food!",2);
+    add_user_reminder(user1,"Buy some tomaaatos!",1);
+    show_all_reminders();
+
+    handle_timer_tick();
+
+    show_all_reminders();
+
+    handle_timer_tick();
+    show_all_reminders();
+
+    const int expire_time= 4;
+    add_user_reminder(user1,"Buy something new, eventyally!",expire_time);
+    for(int i = 0; i< expire_time; ++i)
+    {
+        show_user_reminders(user1);
+        handle_timer_tick();
+    }
+
+}
 int main()
 {
-
     test1();
     test2();
     test3();
+    test4();
     return 0;
 }
