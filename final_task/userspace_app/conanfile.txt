@@ -1,0 +1,14 @@
+[requires]
+sdl/2.0.16
+
+[options]
+sdl2_image:tif=False
+sdl2:shared=True
+
+[imports]
+ bin, *.dll -> ./bin # Copies all dll files from packages bin folder to my "bin" folder
+ lib, *.dylib* -> ./bin # Copies all dylib files from packages lib folder to my "bin" folder
+ lib, *.so* -> ./bin # Copies all so files from packages lib folder to my "bin" folder
+ lib, *.dll -> ./bin
+[generators]
+cmake

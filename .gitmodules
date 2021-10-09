@@ -1,0 +1,6 @@
+[submodule "final_task/userspace_app/lvgl_lib/lvgl_driver_backend/lv_drivers"]
+	path = final_task/userspace_app/lvgl_lib/lvgl_driver_backend/lv_drivers
+	url = https://github.com/lvgl/lv_drivers.git
+[submodule "final_task/userspace_app/lvgl_lib/lvgl_library/lvgl"]
+	path = final_task/userspace_app/lvgl_lib/lvgl_library/lvgl
+	url = https://github.com/lvgl/lvgl.git
