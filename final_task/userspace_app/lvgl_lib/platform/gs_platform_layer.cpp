@@ -135,7 +135,7 @@ PlatformBackend::initPlatformGfxTimer()
 void
 PlatformBackend::indevPlatformInit()
 {
-    lv_indev_drv_t indevDrv{};
+    static lv_indev_drv_t indevDrv{};
 
     lv_indev_drv_init( &indevDrv );
     indevDrv.type = LV_INDEV_TYPE_POINTER;
