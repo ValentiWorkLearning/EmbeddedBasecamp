@@ -90,7 +90,7 @@ int init_display_chardevice(const display_chardev_descriptor *display_functions)
 	devclass = class_create(THIS_MODULE, DEV_SYSFS_ENTRY_TITLE);
 
 	devclass->devnode = display_devnode;
-	device_create(devclass, NULL, device, NULL, "%s_%d", "framebuffer",
+	device_create(devclass, NULL, device, NULL, "%s_%d", "gc9_framebuffer",
 		      MIN_MINOR_NUMBER);
 
 	printk(KERN_INFO "======== module installed %d:[%d-%d] ===========\n",
