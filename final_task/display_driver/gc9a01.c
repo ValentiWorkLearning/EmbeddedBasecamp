@@ -10,7 +10,7 @@
 #define GPIO_PIN_DC LCD_PIN_DC
 #define DATA_SIZE 1000
 
-static uint16_t* frame_buffer;
+static uint16_t *frame_buffer;
 
 // clang-format off
 #define COMMANDS_SIZE 328
@@ -112,11 +112,10 @@ int init_display(int spi_module_index)
 		       "Failed to initialize display. SPI module initialization failed\n");
 		return -1;
 	}
-	frame_buffer = kmalloc(LCD_WIDTH*LCD_HEIGHT*sizeof(uint16_t),GFP_KERNEL);
-	if(frame_buffer == NULL)
-	{
-		printk(KERN_ERR
-		       "Failed to allocate display framebuffer\n");
+	frame_buffer =
+		kmalloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t), GFP_KERNEL);
+	if (frame_buffer == NULL) {
+		printk(KERN_ERR "Failed to allocate display framebuffer\n");
 		return -1;
 	}
 	init_display_internal();
@@ -273,9 +272,19 @@ void lcd_reset(void)
 
 void lcd_deinit(void)
 {
-	if(frame_buffer)
+	if (frame_buffer)
 		kfree(frame_buffer);
 	deinit_spi_wrapper();
 	gpio_module_free(GPIO_PIN_RESET);
 	gpio_module_free(GPIO_PIN_DC);
+}
+
+
+u8 *get_framebuffer_raw_ptr(void)
+{
+	return (u8*)frame_buffer;
+}
+size_t get_framebuffer_size(void)
+{
+	return LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t);
 }

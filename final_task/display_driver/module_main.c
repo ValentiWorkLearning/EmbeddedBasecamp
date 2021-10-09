@@ -4,6 +4,7 @@
 #include <linux/sched.h>
 #include <linux/delay.h>
 #include "gc9a01.h"
+#include "gc9a01_chardev.h"
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Valentyn Korniienko <valentyn.korniienko1@nure.ua>");
@@ -12,6 +13,12 @@ MODULE_VERSION("0.1");
 
 static int spi_bus_index = 0;
 module_param(spi_bus_index, int, S_IRUGO);
+
+static display_chardev_descriptor display_functions = {
+	.p_display_updater = &lcd_update_screen,
+	.p_fb_getter = &get_framebuffer_raw_ptr,
+	.p_fb_size_getter = &get_framebuffer_size
+};
 
 static int __init display_module_init(void)
 {
@@ -28,11 +35,14 @@ static int __init display_module_init(void)
 	lcd_put_string("Test KERNEL mode", 60, 60, Font_11x18, COLOR_RED,
 		       COLOR_BLACK);
 	lcd_update_screen();
+
+	init_display_chardevice(&display_functions);
 	return 0;
 }
 
 static void __exit display_module_exit(void)
 {
+	deinit_display_chardevice();
 	lcd_deinit();
 }
 
