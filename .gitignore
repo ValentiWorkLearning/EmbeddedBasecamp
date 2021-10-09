@@ -59,3 +59,4 @@ exercise4/CMakeLists*.txt
 *.gz
 *.log
 .vscode
+final_task/display_test_app/build/*
