@@ -19,7 +19,7 @@ inline constexpr std::uint16_t COLOR_MAGENTA = 0xF81F;
 inline constexpr std::uint16_t COLOR_YELLOW = 0xFFE0;
 inline constexpr std::uint16_t COLOR_WHITE = 0xFFFF;
 
-constexpr auto kFillColorsArray = std::array{ COLOR_BLACK, COLOR_BLUE,COLOR_RED,COLOR_GREEN,COLOR_CYAN,COLOR_MAGENTA,COLOR_YELLOW };
+constexpr auto kFillColorsArray = std::array{ COLOR_RED };
 
 constexpr std::string_view kFrameBufferPath = "/dev/gc9_framebuffer_0";
 

@@ -17,5 +17,6 @@ clean:
 deploy: all
 #	scp gc9a01_module.ko pi@192.168.0.197:~/display_driver_test
 	scp display_driver_apply_overlay.sh pi@192.168.0.197:~/display_driver_test
+	scp debug_read_from_debufs.sh pi@192.168.0.197:~/display_driver_test
 	scp spidev_disabled.dts pi@192.168.0.197:~/display_driver_test
 endif
