@@ -284,7 +284,7 @@ u8 *get_framebuffer_raw_ptr(void)
 {
 	return (u8*)frame_buffer;
 }
-size_t get_framebuffer_size(void)
+u32 get_framebuffer_size(void)
 {
 	return LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t);
 }

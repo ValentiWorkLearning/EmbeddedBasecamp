@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.16)
 project(display_test C CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -11,4 +11,9 @@ target_compile_features(
     app_test
     PRIVATE
     cxx_std_17
+)
+target_link_libraries(
+	app_test
+	PRIVATE
+	stdc++fs
 )

@@ -34,7 +34,7 @@ void lcd_put_string(const char *string, uint16_t x, uint16_t y, FontDef font,
 void lcd_reset(void);
 
 u8 *get_framebuffer_raw_ptr(void);
-size_t get_framebuffer_size(void);
+u32 get_framebuffer_size(void);
 
 void lcd_deinit(void);
 #endif

@@ -5,9 +5,10 @@
 #include <filesystem>
 #include <cstddef>
 #include <vector>
-
+#include <array>
 #include <fcntl.h>
 #include <unistd.h>
+#include <cstdio>
 
 inline constexpr std::uint16_t COLOR_BLACK = 0x0000;
 inline constexpr std::uint16_t COLOR_BLUE = 0x001F;
@@ -17,6 +18,8 @@ inline constexpr std::uint16_t COLOR_CYAN = 0x07FF;
 inline constexpr std::uint16_t COLOR_MAGENTA = 0xF81F;
 inline constexpr std::uint16_t COLOR_YELLOW = 0xFFE0;
 inline constexpr std::uint16_t COLOR_WHITE = 0xFFFF;
+
+constexpr auto kFillColorsArray = std::array{ COLOR_BLACK, COLOR_BLUE,COLOR_RED,COLOR_GREEN,COLOR_CYAN,COLOR_MAGENTA,COLOR_YELLOW };
 
 constexpr std::string_view kFrameBufferPath = "/dev/gc9_framebuffer_0";
 
@@ -88,17 +91,24 @@ class FramebufferHolder {
 
 int main()
 {
+	printf("App test init\n");
 	FileRaiiGuard fileWrapper{ kFrameBufferPath };
-	constexpr std::size_t kDisplayWidth = 320;
+	constexpr std::size_t kDisplayWidth = 240;
 	constexpr std::size_t kDisplayHeight = 240;
 
 	FramebufferHolder<kDisplayWidth, kDisplayHeight> frameBuffer;
 	constexpr std::size_t kDisplayFramebufferSizeRaw =
 		kDisplayWidth * kDisplayHeight * sizeof(std::uint16_t);
 
-	frameBuffer.fillWithColor(COLOR_BLUE);
+	printf("Attempted to fill with color\n");
+
+	for(const auto color : kFillColorsArray){
+	frameBuffer.fillWithColor(color);
 	fileWrapper.writeToFile(frameBuffer.getRaw(),
 				kDisplayFramebufferSizeRaw);
-
+	using namespace std::chrono_literals;
+	std::this_thread::sleep_for(13ms);
+	}
+	printf("App exit\n");
 	return 0;
 }
