@@ -4,15 +4,9 @@
 
 #include <lvgl.h>
 
-#ifdef USE_SDL_BACKEND
 #include <thread>
 #include <chrono>
-#endif // USE_SDL_BACKEND
-
-
-namespace DisplayDriver {
-    class IDisplayDriver;
-}
+#include <atomic>
 
 namespace Graphics
 {
@@ -23,8 +17,9 @@ class PlatformBackend
 public:
 
     PlatformBackend();
+    ~PlatformBackend();
 
-    void platformDependentInit( lv_disp_drv_t* _displayDriver );
+    void platformDependentInit( lv_disp_drv_t* displayDriver );
 
     void initPlatformGfxTimer();
 
@@ -41,13 +36,10 @@ private:
     void memoryMonitor(lv_timer_t* _param);
 
 private:
-
-#if defined USE_HARDWARE_DISPLAY_BACKEND
-    std::unique_ptr<DisplayDriver::IDisplayDriver> m_hardwareDisplayDriver;
-#elif defined USE_SDL_BACKEND
+    class PlatformConcreteImpl;
+    std::unique_ptr<PlatformConcreteImpl> m_platformConcreteImpl;
+    std::atomic_bool m_tickStop = false;
     std::thread m_tickThread;
-#endif
-
 };
 
 } // namespace Graphics

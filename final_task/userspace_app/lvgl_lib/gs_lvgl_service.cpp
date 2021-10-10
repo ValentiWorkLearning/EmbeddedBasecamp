@@ -31,6 +31,7 @@ public:
         ,   m_glDisplayDriver{}
         ,   m_pPlatformBackend{}
     {
+        m_dispFrameBufFirst.resize(LV_HOR_RES_MAX*LV_VER_RES_MAX);
         initLvglLogger();
         initDisplayDriver();
         initMainWindow();
@@ -65,14 +66,14 @@ private:
 
         lv_disp_draw_buf_init(
                         &displayBuffer
-                    ,   &dispFrameBufFirst
+                    ,   &m_dispFrameBufFirst
                     ,   nullptr
                     ,   DispHorRes
                 );
 
         lv_disp_drv_init( &m_glDisplayDriver );
         m_glDisplayDriver.draw_buf = &displayBuffer;
-
+        m_glDisplayDriver.full_refresh = true;
         auto monitorCallback = cbc::obtain_connector(
             []( lv_disp_drv_t * disp_drv, uint32_t time, uint32_t px )
             {
@@ -102,22 +103,19 @@ private:
 
     static constexpr size_t DispHorRes = LV_HOR_RES_MAX*10;
 
-    using TColorBuf = std::array<lv_color_t,DispHorRes>;
+    using TColorBuf = std::vector<lv_color_t>;
 
     static lv_disp_draw_buf_t displayBuffer;
-    static TColorBuf dispFrameBufFirst;
 
 private:
 
     Meta::PointerWrapper<lv_disp_t,lv_disp_remove> m_glDisplay;
     lv_disp_drv_t m_glDisplayDriver;
+    TColorBuf m_dispFrameBufFirst;
     Graphics::PlatformBackend m_pPlatformBackend;
 };
 
 lv_disp_draw_buf_t LvglGraphicsService::GSLvglServiceImpl::displayBuffer{};
-
-LvglGraphicsService::GSLvglServiceImpl::TColorBuf
-LvglGraphicsService::GSLvglServiceImpl::dispFrameBufFirst{};
 
 LvglGraphicsService::~LvglGraphicsService() = default;
 
