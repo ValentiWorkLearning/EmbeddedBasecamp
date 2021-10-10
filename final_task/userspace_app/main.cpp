@@ -2,9 +2,9 @@
 
 int main(void)
 {
-    Application mainApp;
+	Application mainApp;
 
-    mainApp.runApplicationLoop();
+	mainApp.runApplicationLoop();
 
-    return 0;
+	return 0;
 }

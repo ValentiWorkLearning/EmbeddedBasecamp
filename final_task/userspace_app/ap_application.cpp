@@ -7,20 +7,18 @@
 
 Application::Application()
 {
-    initGraphicsStack();
+	initGraphicsStack();
 }
 
 Application::~Application() = default;
 
-void
-Application::initGraphicsStack()
+void Application::initGraphicsStack()
 {
-    m_graphicsService = Graphics::createGraphicsService();
+	m_graphicsService = Graphics::createGraphicsService();
 }
 
-void
-Application::runApplicationLoop()
+void Application::runApplicationLoop()
 {
-    while(m_applicationRuning)
-        m_graphicsService->executeGlTask();
+	while (m_applicationRuning)
+		m_graphicsService->executeGlTask();
 }
