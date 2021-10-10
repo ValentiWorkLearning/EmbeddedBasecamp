@@ -63,16 +63,16 @@ constexpr std::string_view kFrameBufferPath = "/dev/gc9_framebuffer_0";
 struct FileRaiiGuard {
     FileRaiiGuard(std::string_view filePath):m_fileHandle{kInvalidFileHandle}
     {
-                if (!std::filesystem::exists(filePath)) {
-                    throw std::runtime_error(
+        if (!std::filesystem::exists(filePath)) {
+            throw std::runtime_error(
                         "Bad file path for the FileRaiiGuard");
-                }
-                m_fileHandle = open(filePath.data(), O_WRONLY);
+        }
+        m_fileHandle = open(filePath.data(), O_WRONLY);
 
-                if (m_fileHandle == kInvalidFileHandle) {
-                    throw std::runtime_error(
+        if (m_fileHandle == kInvalidFileHandle) {
+            throw std::runtime_error(
                         "Failed to open the given file");
-                }
+        }
     }
     FileRaiiGuard &operator=(const FileRaiiGuard &) = delete;
     FileRaiiGuard(const FileRaiiGuard &) = delete;
@@ -115,7 +115,7 @@ public:
         auto fillDisplayCb = cbc::obtain_connector(
                     [this](lv_disp_drv_t* displayDriver, const lv_area_t* fillArea, lv_color_t* colorFill)
         {
-                const lv_coord_t dataSize = displayDriver->hor_res * displayDriver->ver_res * sizeof(lv_color16_t);
+                const size_t dataSize = (displayDriver->ver_res)*(displayDriver->hor_res) * sizeof(lv_color16_t);
                 m_fileGuard.writeToFile(reinterpret_cast<const std::uint8_t*>(colorFill),dataSize);
                 lv_disp_flush_ready(displayDriver);
     }
@@ -169,16 +169,16 @@ PlatformBackend::indevPlatformInit()
 
     auto memoryMonitorTask = cbc::obtain_connector(
                 [this]( lv_timer_t* _param )
-    {
-            memoryMonitor( _param );
-}
+            {
+                    memoryMonitor( _param );
+            }
             );
 
-    lv_timer_create(
-                memoryMonitorTask
-                ,   10
-                ,   nullptr
-                );
+//    lv_timer_create(
+//                memoryMonitorTask
+//                ,   10
+//                ,   nullptr
+//                );
 }
 
 void
