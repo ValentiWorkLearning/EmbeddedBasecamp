@@ -87,7 +87,7 @@ private:
             }
         );
 
-        m_glDisplayDriver.monitor_cb = monitorCallback;
+        //m_glDisplayDriver.monitor_cb = monitorCallback;
         m_pPlatformBackend.platformDependentInit( &m_glDisplayDriver );
 
         m_glDisplay.reset( lv_disp_drv_register( &m_glDisplayDriver ) );

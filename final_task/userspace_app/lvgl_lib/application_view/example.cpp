@@ -78,7 +78,31 @@ static void onNotificationButtonClicked(lv_event_t * e)
         createMessageboxForReminder(pReminder);
     }
 }
+static void onIndevEventOccured(lv_event_t* e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_indev_t * indev = lv_indev_get_act();
+    if(indev == nullptr)
+        return;
 
+    lv_indev_type_t indev_type = lv_indev_get_type(indev);
+    RemindersViewModel* pThis = reinterpret_cast<RemindersViewModel*>( e->user_data);
+
+    if( (indev_type == LV_INDEV_TYPE_ENCODER || indev_type==LV_INDEV_TYPE_KEYPAD )&&  code == LV_EVENT_KEY)
+    {
+        int key = lv_event_get_key(e);
+        constexpr int kNumpadNext = 54;
+        constexpr int kNumpadPrev = 52;
+        if(key==kNumpadNext)
+        {
+            pThis->scrollToNextNotification();
+        }else if(key == kNumpadPrev)
+        {
+            pThis->scrollToPrevNotification();
+        }
+
+    }
+}
 
 RemindersViewModel::RemindersViewModel():m_autoscrollChildrenIndex{},m_scrollDirection{AutoscrollDirection::Forward}
 {
@@ -91,6 +115,7 @@ RemindersViewModel::RemindersViewModel():m_autoscrollChildrenIndex{},m_scrollDir
     lv_obj_center(cont);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_add_event_cb(cont, scrollEventCallback, LV_EVENT_SCROLL, nullptr);
+    lv_obj_add_event_cb(cont, onIndevEventOccured,LV_EVENT_KEY,this);
     lv_obj_set_style_radius(cont, LV_RADIUS_CIRCLE, 0);
     lv_obj_set_style_clip_corner(cont, true, 0);
     lv_obj_set_scroll_dir(cont, LV_DIR_VER);
@@ -113,10 +138,12 @@ RemindersViewModel::RemindersViewModel():m_autoscrollChildrenIndex{},m_scrollDir
     set_notification_is_about_to_remove_callback(notificationIsAboutToBeRemovedSlot);
 
     constexpr auto kTimerTimeout = 1500;
-    m_scrollNotificationsTimer.reset(lv_timer_create(autoscrollTimerCallback, kTimerTimeout,nullptr));
+    //m_scrollNotificationsTimer.reset(lv_timer_create(autoscrollTimerCallback, kTimerTimeout,this));
 
     constexpr auto kNotificationsTimeout = 1000;
-    m_notificationsTimer.reset(lv_timer_create(notificationTimerCallback, kNotificationsTimeout,nullptr));
+    //m_notificationsTimer.reset(lv_timer_create(notificationTimerCallback, kNotificationsTimeout,this));
+
+    assignInputDeviceToGroup();
 }
 
 void RemindersViewModel::createSimpleNotificationsModel()
@@ -133,12 +160,12 @@ void RemindersViewModel::createSimpleNotificationsModel()
     add_new_user(voidUser);
     add_new_user(alex);
 
-    add_user_reminder(valenti,"Buy some food!",15);
-    add_user_reminder(valenti,"Buy some tomaaatos!",20);
-    add_user_reminder(valenti,"But extre beer",25);
-    add_user_reminder(voidUser,"Physical activity",30);
-    add_user_reminder(alex,"Buy sausages",35);
-    add_user_reminder(alex,"Check mobile for new messages",40);
+    add_user_reminder(valenti,"Buy some food!",20);
+    add_user_reminder(valenti,"Buy some tomaaatos!",25);
+    add_user_reminder(valenti,"But extre beer",30);
+    add_user_reminder(voidUser,"Physical activity",35);
+    add_user_reminder(alex,"Buy sausages",40);
+    add_user_reminder(alex,"Check mobile for new messages",45);
 
 }
 
@@ -177,16 +204,18 @@ void RemindersViewModel::slotAutoScrollTimerExpired(lv_timer_t *timer)
 {
     lv_obj_t* view = m_notificationsListRoot.get();
 
-    const bool isEmpty = is_notifications_list_empty();
-    if(isEmpty)
+    RemindersViewModel* pThis = reinterpret_cast<RemindersViewModel*>(timer->user_data);
+    if(!pThis->isScrollAllowed())
         return;
 
     size_t notificationsCount = get_notifications_total_count();
-    const bool shouldScroll = notificationsCount > 1 && m_autoscrollChildrenIndex < notificationsCount;
-    if(!shouldScroll)
-        return;
     lv_obj_scroll_to_view(lv_obj_get_child(view, m_autoscrollChildrenIndex), LV_ANIM_ON);
-    if(m_scrollDirection == AutoscrollDirection::Forward)
+
+    if(!m_scrollDirection)
+        return;
+
+    const auto scrollDirection = m_scrollDirection.value();
+    if(scrollDirection == AutoscrollDirection::Forward)
     {
         ++m_autoscrollChildrenIndex;
         if(m_autoscrollChildrenIndex == notificationsCount){
@@ -204,7 +233,6 @@ void RemindersViewModel::slotAutoScrollTimerExpired(lv_timer_t *timer)
 
 void RemindersViewModel::showExpriedNotificationMessageBox(struct reminder* pReminder)
 {
-
     const char* reminderText = get_notification_text(pReminder);
 
     lv_obj_t* messagebox = lv_msgbox_create(nullptr, "!REMINDER!", reminderText, kMessageboxButtons, true);
@@ -228,6 +256,77 @@ void RemindersViewModel::checkIsListEmpty()
     else{
         m_emptyListLabel.reset();
     }
+}
+
+void RemindersViewModel::assignInputDeviceToGroup()
+{
+    m_objectsGroup.reset(lv_group_create());
+
+    lv_indev_t* cur_drv = nullptr;
+    for (;;) {
+        cur_drv = lv_indev_get_next(cur_drv);
+        if (!cur_drv) {
+            break;
+        }
+
+        if (cur_drv->driver->type == LV_INDEV_TYPE_KEYPAD) {
+            lv_indev_set_group(cur_drv, m_objectsGroup.get());
+        }
+    }
+    lv_group_add_obj(m_objectsGroup.get(),m_notificationsListRoot.get());
+}
+
+void RemindersViewModel::scrollToPrevNotification()
+{
+
+    deactivateAutoscroll();
+    if(!isScrollAllowed())
+        return;
+
+    lv_obj_t* view = m_notificationsListRoot.get();
+
+    if(m_autoscrollChildrenIndex == 0)
+        return;
+
+    --m_autoscrollChildrenIndex;
+
+    lv_obj_scroll_to_view(lv_obj_get_child(view, m_autoscrollChildrenIndex), LV_ANIM_ON);
+
+}
+void RemindersViewModel::scrollToNextNotification()
+{
+    deactivateAutoscroll();
+    if(!isScrollAllowed())
+        return;
+
+    lv_obj_t* view = m_notificationsListRoot.get();
+    size_t notificationsCount = get_notifications_total_count();
+
+    if(m_autoscrollChildrenIndex+1 == notificationsCount){
+        return;
+    }
+    ++m_autoscrollChildrenIndex;
+
+    lv_obj_scroll_to_view(lv_obj_get_child(view, m_autoscrollChildrenIndex), LV_ANIM_ON);
+
+}
+
+void RemindersViewModel::deactivateAutoscroll()
+{
+    m_scrollDirection.reset();
+}
+bool RemindersViewModel::isScrollAllowed()const
+{
+    const bool isEmpty = is_notifications_list_empty();
+    if(isEmpty)
+        return false;
+
+    size_t notificationsCount = get_notifications_total_count();
+    const bool shouldScroll = notificationsCount > 1 && m_autoscrollChildrenIndex < notificationsCount;
+    if(!shouldScroll)
+        return false;
+
+    return true;
 }
 RemindersViewModel::~RemindersViewModel()
 {

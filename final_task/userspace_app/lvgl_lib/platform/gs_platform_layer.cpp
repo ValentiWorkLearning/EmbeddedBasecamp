@@ -35,6 +35,14 @@ public:
         indevDrv.type = LV_INDEV_TYPE_POINTER;
         indevDrv.read_cb = sdl_mouse_read;
         lv_indev_drv_register( &indevDrv );
+
+
+        static lv_indev_drv_t keybopardDriver{};
+        lv_indev_drv_init( &keybopardDriver );
+        keybopardDriver.type = LV_INDEV_TYPE_KEYPAD;
+        keybopardDriver.read_cb = sdl_keyboard_read;
+        lv_indev_drv_register( &keybopardDriver );
+
     }
 };
 

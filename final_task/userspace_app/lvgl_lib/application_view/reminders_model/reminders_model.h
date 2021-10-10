@@ -4,7 +4,6 @@
 
 #include <linked_list.h>
 
-//#include <linux/list.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
