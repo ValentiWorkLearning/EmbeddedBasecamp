@@ -6,6 +6,11 @@ option(DESKTOP_BUILD "Use the desktop build for the application. Graphics stack-
 
 set (CONAN_DISABLE_CHECK_COMPILER TRUE)
 
+
+if( UNIX )
+    find_package(Threads REQUIRED)
+endif()
+
 if(DESKTOP_BUILD)
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
@@ -46,6 +51,10 @@ target_link_libraries(
     logger_service
     graphics_backend
 )
+
+if( UNIX )
+    target_link_libraries( ${APP_TARGET} PRIVATE Threads::Threads)
+endif()
 
 target_compile_features(
     ${APP_TARGET}
