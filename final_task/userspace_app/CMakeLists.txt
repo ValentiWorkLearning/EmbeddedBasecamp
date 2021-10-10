@@ -6,6 +6,7 @@ option(DESKTOP_BUILD "Use the desktop build for the application. Graphics stack-
 
 set (CONAN_DISABLE_CHECK_COMPILER TRUE)
 
+if(DESKTOP_BUILD)
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/master/conan.cmake"
@@ -22,6 +23,7 @@ conan_cmake_configure(REQUIRES sdl/2.0.16
 )
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
+endif()
 
 add_subdirectory(utils)
 add_subdirectory(logger)
