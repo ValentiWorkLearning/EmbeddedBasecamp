@@ -45,8 +45,6 @@ target_link_libraries(
     PRIVATE
     logger_service
     graphics_backend
-    CONAN_PKG::sdl
-
 )
 
 target_compile_features(
