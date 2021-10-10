@@ -99,7 +99,8 @@ private:
     {
         // TODO create the lvlg task for ellaped event processing
         //lv_ex_tileview_1();
-        Lvgl::Example::createSimpleWidgetsExample();
+        m_reminderViewModel = std::make_unique<Lvgl::Example::RemindersViewModel>();
+        //Lvgl::Example::createSimpleWidgetsExample();
     }
 
 private:
@@ -117,6 +118,7 @@ private:
     TColorBuf m_dispFrameBufFirst;
     TColorBuf m_dispFrameBufSecond;
     Graphics::PlatformBackend m_pPlatformBackend;
+    Lvgl::Example::RemindersViewModel::Ptr m_reminderViewModel;
 };
 
 lv_disp_draw_buf_t LvglGraphicsService::GSLvglServiceImpl::displayBuffer{};
