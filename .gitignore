@@ -54,8 +54,11 @@ dkms.conf
 *bin/*
 build-exercise4-Desktop_Qt_5_15_1_GCC_64bit-Debug/*
 build-task8-Desktop_Qt_5_15_2_GCC_64bit-Debug/*
+build-userspace_app-Desktop_Qt_5_15_2_GCC_64bit-Debug*
 exercise4/CMakeLists*.txt
 *.orig
 *.gz
 *.log
 .vscode
+final_task/display_test_app/build/*
+final_task/userspace_app/build/*
