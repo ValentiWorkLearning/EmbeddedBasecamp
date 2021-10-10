@@ -2,6 +2,7 @@
 #include <logger/logger_service.hpp>
 
 #include <utils/CallbackConnector.hpp>
+#include <utils/MetaUtils.hpp>
 #include <thread>
 #include <chrono>
 
@@ -57,11 +58,10 @@ public:
 
 namespace  {
 
-
 constexpr std::string_view kFrameBufferPath = "/dev/gc9_framebuffer_0";
 
 struct FileRaiiGuard {
-    FileRaiiGuard(std::string_view filePath):m_fileHandle{kInvalidFileHandle}
+    FileRaiiGuard(std::string_view filePath):m_fileHandle{}
     {
         if (!std::filesystem::exists(filePath)) {
             throw std::runtime_error(
@@ -103,20 +103,22 @@ private:
 }
 namespace Graphics {
 class PlatformBackend::PlatformConcreteImpl
+        :   public std::enable_shared_from_this<PlatformConcreteImpl>
 {
 public:
 
-    PlatformConcreteImpl():m_fileGuard{kFrameBufferPath}
-    {
+    PlatformConcreteImpl()=default;
+    PlatformConcreteImpl&operator=(const PlatformConcreteImpl&) = delete;
+    PlatformConcreteImpl(const PlatformConcreteImpl&) = delete;
 
-    }
     void platformDependentInit(lv_disp_drv_t* _displayDriver)
     {
         auto fillDisplayCb = cbc::obtain_connector(
-                    [this](lv_disp_drv_t* displayDriver, const lv_area_t* fillArea, lv_color_t* colorFill)
+                    [](lv_disp_drv_t* displayDriver, const lv_area_t* fillArea, lv_color_t* colorFill)
         {
+            static FileRaiiGuard fileGuard{kFrameBufferPath};
                 const size_t dataSize = (displayDriver->ver_res)*(displayDriver->hor_res) * sizeof(lv_color16_t);
-                m_fileGuard.writeToFile(reinterpret_cast<const std::uint8_t*>(colorFill),dataSize);
+                fileGuard.writeToFile(reinterpret_cast<const std::uint8_t*>(colorFill),dataSize);
                 lv_disp_flush_ready(displayDriver);
     }
                 );
@@ -127,7 +129,6 @@ public:
     {
 
     }
-    FileRaiiGuard m_fileGuard;
 };
 
 }
@@ -174,11 +175,11 @@ PlatformBackend::indevPlatformInit()
             }
             );
 
-//    lv_timer_create(
-//                memoryMonitorTask
-//                ,   10
-//                ,   nullptr
-//                );
+    lv_timer_create(
+                memoryMonitorTask
+                ,   10
+                ,   nullptr
+                );
 }
 
 void
@@ -194,7 +195,7 @@ PlatformBackend::memoryMonitor(lv_timer_t* _param)
     lv_mem_monitor_t moninor{};
     lv_mem_monitor( &moninor );
 
-    printf("Used: %d, %d" "'%'" "fragmentation : %d, biggest free : %d",
+    printf("Used: %d, %d" "'%'" "fragmentation : %d, biggest free : %d\n",
            static_cast<std::uint32_t>(moninor.total_size - moninor.free_size)
            , static_cast<std::uint32_t>(moninor.used_pct)
            , static_cast<std::uint32_t>(moninor.frag_pct)
