@@ -32,6 +32,7 @@ public:
         ,   m_pPlatformBackend{}
     {
         m_dispFrameBufFirst.resize(LV_HOR_RES_MAX*LV_VER_RES_MAX);
+        m_dispFrameBufSecond.resize(LV_HOR_RES_MAX*LV_VER_RES_MAX);
         initLvglLogger();
         initDisplayDriver();
         initMainWindow();
@@ -67,7 +68,7 @@ private:
         lv_disp_draw_buf_init(
                         &displayBuffer
                     ,   &m_dispFrameBufFirst
-                    ,   nullptr
+                    ,   &m_dispFrameBufSecond
                     ,   DisplayBufferSize
                 );
 
@@ -114,6 +115,7 @@ private:
     Meta::PointerWrapper<lv_disp_t,lv_disp_remove> m_glDisplay;
     lv_disp_drv_t m_glDisplayDriver;
     TColorBuf m_dispFrameBufFirst;
+    TColorBuf m_dispFrameBufSecond;
     Graphics::PlatformBackend m_pPlatformBackend;
 };
 
