@@ -345,11 +345,3 @@ target_link_options(
     PUBLIC
     ${CPU_FLAGS}
 )
-
-target_compile_options(
-    ${TARGET_NAME}
-    PUBLIC
-    $<$<CONFIG:Debug>:-Os>
-    $<$<CONFIG:Release>:-Os>
-    ${COMMON_FLAGS}
-)

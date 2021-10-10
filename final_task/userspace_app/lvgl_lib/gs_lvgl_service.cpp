@@ -68,11 +68,13 @@ private:
                         &displayBuffer
                     ,   &m_dispFrameBufFirst
                     ,   nullptr
-                    ,   DispHorRes
+                    ,   DisplayBufferSize
                 );
 
         lv_disp_drv_init( &m_glDisplayDriver );
         m_glDisplayDriver.draw_buf = &displayBuffer;
+        m_glDisplayDriver.hor_res = LV_HOR_RES_MAX;
+        m_glDisplayDriver.ver_res = LV_VER_RES_MAX;
         m_glDisplayDriver.full_refresh = true;
         auto monitorCallback = cbc::obtain_connector(
             []( lv_disp_drv_t * disp_drv, uint32_t time, uint32_t px )
@@ -102,7 +104,7 @@ private:
 private:
 
     static constexpr size_t DispHorRes = LV_HOR_RES_MAX*10;
-
+    static constexpr size_t DisplayBufferSize = LV_HOR_RES_MAX* LV_VER_RES_MAX;
     using TColorBuf = std::vector<lv_color_t>;
 
     static lv_disp_draw_buf_t displayBuffer;

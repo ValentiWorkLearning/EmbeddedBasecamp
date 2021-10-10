@@ -5,7 +5,6 @@
 
 #include <optional>
 
-
 Application::Application()
 {
     initGraphicsStack();
@@ -22,8 +21,6 @@ Application::initGraphicsStack()
 void
 Application::runApplicationLoop()
 {
-    while (true)
-    {
+    while(m_applicationRuning)
         m_graphicsService->executeGlTask();
-    }
 }

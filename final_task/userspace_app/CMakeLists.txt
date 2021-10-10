@@ -4,8 +4,10 @@ project(final-lvgl C CXX ASM)
 
 option(DESKTOP_BUILD "Use the desktop build for the application. Graphics stack-SDL" ON)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 set (CONAN_DISABLE_CHECK_COMPILER TRUE)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 if( UNIX )
     find_package(Threads REQUIRED)
@@ -53,7 +55,7 @@ target_link_libraries(
 )
 
 if( UNIX )
-    target_link_libraries( ${APP_TARGET} PRIVATE Threads::Threads stdc++fs)
+    target_link_libraries( ${APP_TARGET} PUBLIC Threads::Threads stdc++fs)
 endif()
 
 target_compile_features(

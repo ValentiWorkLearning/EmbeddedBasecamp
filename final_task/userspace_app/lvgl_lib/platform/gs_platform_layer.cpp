@@ -50,6 +50,7 @@ public:
 #include <vector>
 #include <array>
 #include <fcntl.h>
+#include <iostream>
 #include <unistd.h>
 #include <cstdio>
 
@@ -60,18 +61,18 @@ namespace  {
 constexpr std::string_view kFrameBufferPath = "/dev/gc9_framebuffer_0";
 
 struct FileRaiiGuard {
-    FileRaiiGuard(std::string_view filePath)
+    FileRaiiGuard(std::string_view filePath):m_fileHandle{kInvalidFileHandle}
     {
-        if (!std::filesystem::exists(filePath)) {
-            throw std::runtime_error(
-                "Bad file path for the FileRaiiGuard");
-        }
-        m_fileHandle = open(filePath.data(), O_WRONLY);
+                if (!std::filesystem::exists(filePath)) {
+                    throw std::runtime_error(
+                        "Bad file path for the FileRaiiGuard");
+                }
+                m_fileHandle = open(filePath.data(), O_WRONLY);
 
-        if (m_fileHandle == kInvalidFileHandle) {
-            throw std::runtime_error(
-                "Failed to open the given file");
-        }
+                if (m_fileHandle == kInvalidFileHandle) {
+                    throw std::runtime_error(
+                        "Failed to open the given file");
+                }
     }
     FileRaiiGuard &operator=(const FileRaiiGuard &) = delete;
     FileRaiiGuard(const FileRaiiGuard &) = delete;
@@ -83,17 +84,19 @@ struct FileRaiiGuard {
         }
     }
 
-    public:
+public:
     void writeToFile(const std::uint8_t *dataSequence,
-             std::size_t dataSequenceSize)
+                     std::size_t dataSequenceSize)
     {
-        write(m_fileHandle, dataSequence, dataSequenceSize);
+        if(m_fileHandle!=kInvalidFileHandle){
+            write(m_fileHandle, dataSequence, dataSequenceSize);
+        }
     }
 
-    private:
+private:
     static constexpr inline std::int32_t kInvalidFileHandle = -1;
 
-    private:
+private:
     int m_fileHandle;
 };
 
@@ -111,12 +114,12 @@ public:
     {
         auto fillDisplayCb = cbc::obtain_connector(
                     [this](lv_disp_drv_t* displayDriver, const lv_area_t* fillArea, lv_color_t* colorFill)
-                    {
-                        const lv_coord_t dataSize = displayDriver->hor_res * displayDriver->ver_res * sizeof(lv_color16_t);
-                        m_fileGuard.writeToFile(reinterpret_cast<const std::uint8_t*>(colorFill),dataSize);
-                        lv_disp_flush_ready(displayDriver);
-                    }
-        );
+        {
+                const lv_coord_t dataSize = displayDriver->hor_res * displayDriver->ver_res * sizeof(lv_color16_t);
+                m_fileGuard.writeToFile(reinterpret_cast<const std::uint8_t*>(colorFill),dataSize);
+                lv_disp_flush_ready(displayDriver);
+    }
+                );
         _displayDriver->flush_cb = fillDisplayCb;
     }
 
@@ -139,13 +142,12 @@ namespace Graphics
 PlatformBackend::PlatformBackend()
     :   m_platformConcreteImpl{std::make_unique<PlatformConcreteImpl>()}
 {
+    m_isTickThreadRunning.store(false);
 };
 
 PlatformBackend::~PlatformBackend()
 {
-    m_tickStop.store(true,std::memory_order_release);
-    if(m_tickThread.joinable())
-        m_tickThread.join();
+    m_isTickThreadRunning.store(false);
 }
 void
 PlatformBackend::platformDependentInit(lv_disp_drv_t* displayDriver)
@@ -156,19 +158,6 @@ PlatformBackend::platformDependentInit(lv_disp_drv_t* displayDriver)
 void
 PlatformBackend::initPlatformGfxTimer()
 {
-    m_tickThread = std::thread(
-        [this]
-        {
-            while (!m_tickStop.load(std::memory_order_acquire))
-            {
-                lv_tick_inc( LvglNotificationTime );
-                std::this_thread::sleep_for(
-                    std::chrono::milliseconds( LvglNotificationTime )
-                );
-            }
-
-        }
-    );
     indevPlatformInit();
     initFilesystem();
 }
@@ -179,17 +168,17 @@ PlatformBackend::indevPlatformInit()
     m_platformConcreteImpl->indevPlatformInit();
 
     auto memoryMonitorTask = cbc::obtain_connector(
-        [this]( lv_timer_t* _param )
-        {
+                [this]( lv_timer_t* _param )
+    {
             memoryMonitor( _param );
-        }
-    );
+}
+            );
 
     lv_timer_create(
-            memoryMonitorTask
-        ,   10
-        ,   nullptr
-    );
+                memoryMonitorTask
+                ,   10
+                ,   nullptr
+                );
 }
 
 void
@@ -205,21 +194,41 @@ PlatformBackend::memoryMonitor(lv_timer_t* _param)
     lv_mem_monitor_t moninor{};
     lv_mem_monitor( &moninor );
 
-    printf("Used: %d, %d '%' fragmentation : %d, biggest free : %d",
-        static_cast<std::uint32_t>(moninor.total_size - moninor.free_size)
-        , static_cast<std::uint32_t>(moninor.used_pct)
-        , static_cast<std::uint32_t>(moninor.frag_pct)
-        , static_cast<std::uint32_t>(moninor.free_biggest_size)
-    );
+    printf("Used: %d, %d" "'%'" "fragmentation : %d, biggest free : %d",
+           static_cast<std::uint32_t>(moninor.total_size - moninor.free_size)
+           , static_cast<std::uint32_t>(moninor.used_pct)
+           , static_cast<std::uint32_t>(moninor.frag_pct)
+           , static_cast<std::uint32_t>(moninor.free_biggest_size)
+           );
 }
 
 void
 PlatformBackend::executeLvTaskHandler()
 {
+
+    if(!m_isTickThreadRunning)
+    {
+        m_isTickThreadRunning = true;
+        setvbuf(stdout, NULL, _IONBF, 0);
+
+        auto m_tickThread = std::thread(
+                    [this]
+        {
+
+            while(m_isTickThreadRunning){
+                lv_tick_inc( LvglNotificationTime );
+                std::this_thread::sleep_for(
+                            std::chrono::milliseconds( LvglNotificationTime )
+                            );
+            }
+        }
+        );
+        m_tickThread.detach();
+    }
     lv_task_handler();
     std::this_thread::sleep_for(
-        std::chrono::milliseconds( LvglNotificationTime )
-    );
+                std::chrono::milliseconds( LvglNotificationTime )
+                );
 }
 
 

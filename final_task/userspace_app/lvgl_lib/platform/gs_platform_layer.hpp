@@ -38,7 +38,7 @@ private:
 private:
     class PlatformConcreteImpl;
     std::unique_ptr<PlatformConcreteImpl> m_platformConcreteImpl;
-    std::atomic_bool m_tickStop = false;
+    std::atomic_bool m_isTickThreadRunning = false;
     std::thread m_tickThread;
 };
 
