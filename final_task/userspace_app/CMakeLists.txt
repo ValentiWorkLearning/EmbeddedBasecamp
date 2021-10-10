@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(final-lvgl C CXX ASM)
+project(final-lvgl)
 
 option(DESKTOP_BUILD "Use the desktop build for the application. Graphics stack-SDL" ON)
 

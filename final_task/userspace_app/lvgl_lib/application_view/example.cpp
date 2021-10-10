@@ -133,12 +133,12 @@ void RemindersViewModel::createSimpleNotificationsModel()
     add_new_user(voidUser);
     add_new_user(alex);
 
-    add_user_reminder(valenti,"Buy some food!",15);
-    add_user_reminder(valenti,"Buy some tomaaatos!",20);
-    add_user_reminder(valenti,"But extre beer",25);
-    add_user_reminder(voidUser,"Physical activity",30);
-    add_user_reminder(alex,"Buy sausages",35);
-    add_user_reminder(alex,"Check mobile for new messages",40);
+    add_user_reminder(valenti,"Buy a new phone!",15);
+    add_user_reminder(valenti,"Check the post office!",20);
+    add_user_reminder(valenti,"Check cat's food ",25);
+    add_user_reminder(voidUser,"Physical activity!",30);
+    add_user_reminder(alex,"Don't forget the meeting",35);
+    add_user_reminder(alex,"Yoga practice",40);
 
 }
 
