@@ -175,11 +175,11 @@ PlatformBackend::indevPlatformInit()
             }
             );
 
-    lv_timer_create(
+/*    lv_timer_create(
                 memoryMonitorTask
                 ,   10
                 ,   nullptr
-                );
+                ); */
 }
 
 void

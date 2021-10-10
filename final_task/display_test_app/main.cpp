@@ -19,7 +19,7 @@ inline constexpr std::uint16_t COLOR_MAGENTA = 0xF81F;
 inline constexpr std::uint16_t COLOR_YELLOW = 0xFFE0;
 inline constexpr std::uint16_t COLOR_WHITE = 0xFFFF;
 
-constexpr auto kFillColorsArray = std::array{ COLOR_RED };
+constexpr auto kFillColorsArray = std::array{ COLOR_RED,COLOR_BLUE,COLOR_GREEN,COLOR_CYAN,COLOR_MAGENTA,COLOR_YELLOW};
 
 constexpr std::string_view kFrameBufferPath = "/dev/gc9_framebuffer_0";
 
@@ -107,7 +107,7 @@ int main()
 	fileWrapper.writeToFile(frameBuffer.getRaw(),
 				kDisplayFramebufferSizeRaw);
 	using namespace std::chrono_literals;
-	std::this_thread::sleep_for(13ms);
+	//std::this_thread::sleep_for(100ms);
 	}
 	printf("App exit\n");
 	return 0;

@@ -27,7 +27,7 @@ public:
 
 private:
 
-    static constexpr std::uint32_t LvglNotificationTime = 15;
+    static constexpr std::uint32_t LvglNotificationTime = 5;
 
 private:
 

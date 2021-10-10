@@ -1,29 +1,41 @@
 #include "example.h"
 #include <lvgl.h>
+static void anim_x_cb(void * var, int32_t v)
+{
+    lv_obj_set_x(reinterpret_cast<lv_obj_t*>(var), v);
+}
 
-namespace Lvgl::Example {
+static void anim_size_cb(void * var, int32_t v)
+{
+    lv_obj_set_size(reinterpret_cast<lv_obj_t*>(var), v, v);
+}
+
+namespace Lvgl::Example
+{
 
 void createSimpleWidgetsExample()
 {
+    lv_obj_t * obj = lv_obj_create(lv_scr_act());
+    lv_obj_set_style_bg_color(obj, lv_palette_main(LV_PALETTE_RED), 0);
+    lv_obj_set_style_radius(obj, LV_RADIUS_CIRCLE, 0);
 
-        /*Create a container with COLUMN flex direction*/
-        lv_obj_t * cont_col = lv_obj_create(lv_scr_act());
-        lv_obj_set_size(cont_col, 200, 150);
+    lv_obj_align(obj, LV_ALIGN_LEFT_MID, 10, 0);
 
-        lv_obj_set_flex_flow(cont_col, LV_FLEX_FLOW_COLUMN);
+    lv_anim_t a;
+    lv_anim_init(&a);
+    lv_anim_set_var(&a, obj);
+    lv_anim_set_values(&a, 10, 50);
+    lv_anim_set_time(&a, 1000);
+    lv_anim_set_playback_delay(&a, 100);
+    lv_anim_set_playback_time(&a, 300);
+    lv_anim_set_repeat_delay(&a, 500);
+    lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
+    lv_anim_set_path_cb(&a, lv_anim_path_ease_in_out);
 
-        uint32_t i;
-        for(i = 0; i < 10; i++) {
-            lv_obj_t * obj;
-            lv_obj_t * label;
-
-            /*Add items to the column*/
-            obj = lv_btn_create(cont_col);
-            lv_obj_set_size(obj, LV_PCT(100), LV_SIZE_CONTENT);
-
-            label = lv_label_create(obj);
-            lv_label_set_text_fmt(label, "Item: %d", i);
-            lv_obj_center(label);
-        }
+    lv_anim_set_exec_cb(&a, anim_size_cb);
+    lv_anim_start(&a);
+    lv_anim_set_exec_cb(&a, anim_x_cb);
+    lv_anim_set_values(&a, 10, 240);
+    lv_anim_start(&a);
 }
 }
