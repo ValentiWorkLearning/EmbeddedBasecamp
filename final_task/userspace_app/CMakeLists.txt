@@ -53,7 +53,7 @@ target_link_libraries(
 )
 
 if( UNIX )
-    target_link_libraries( ${APP_TARGET} PRIVATE Threads::Threads)
+    target_link_libraries( ${APP_TARGET} PRIVATE Threads::Threads stdc++fs)
 endif()
 
 target_compile_features(
