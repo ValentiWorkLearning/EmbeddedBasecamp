@@ -39,9 +39,9 @@ static ssize_t display_chardev_write(struct file *filep, const char *buffer,
 				     size_t len, loff_t *offset)
 {
 	int ret;
-	printk(KERN_INFO "Display: write to file %s\n",
-	       filep->f_path.dentry->d_iname);
-	printk(KERN_INFO "Called chardev write with len : %d, display framebuffer size: %ld\n", len, display_handler->p_fb_size_getter());
+	//printk(KERN_INFO "Display: write to file %s\n",
+	//       filep->f_path.dentry->d_iname);
+	//printk(KERN_INFO "Called chardev write with len : %d, display framebuffer size: %ld\n", len, display_handler->p_fb_size_getter());
 	if (len > display_handler->p_fb_size_getter())
 		return -EIO;
 	ret = copy_from_user(display_handler->p_fb_getter(), buffer, len);
@@ -49,7 +49,7 @@ static ssize_t display_chardev_write(struct file *filep, const char *buffer,
 		printk(KERN_ERR "GC9A01: copy_from_user failed: %d\n", ret);
 		return -EFAULT;
 	}
-	printk(KERN_INFO "GC9A01: %ld bytes written\n", len);
+	//printk(KERN_INFO "GC9A01: %ld bytes written\n", len);
 
 	display_handler->p_display_updater();
 	return len;
