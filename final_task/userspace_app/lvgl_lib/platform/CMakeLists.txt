@@ -34,5 +34,6 @@ target_link_libraries(
     graphics_platform_backend
     PUBLIC
     lvgl_lib
+    stdc++fs
 )
 

@@ -6,7 +6,7 @@ static struct spi_controller *spi_module_block;
 
 static struct spi_board_info gc9a01_spi_board_info = {
 	.modalias = "gc9a01_spi_driver",
-	.max_speed_hz = 3000000,
+	.max_speed_hz = 30000000,
 	.bus_num = 0,
 	.chip_select = 0,
 	.mode = SPI_MODE_0
