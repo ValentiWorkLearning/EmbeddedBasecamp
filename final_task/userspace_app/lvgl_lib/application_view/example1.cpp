@@ -70,6 +70,27 @@ static void btn_event_cb(lv_event_t * e)
         create_messagbox_for_label(buttonLabel);
     }
 }
+static int num_chiilden = 20;
+static int children_index = 0;
+bool forward = true;
+
+void my_timer(lv_timer_t * timer)
+{
+    lv_obj_t* view = reinterpret_cast<lv_obj_t*>(timer->user_data);
+    lv_obj_scroll_to_view(lv_obj_get_child(view, children_index), LV_ANIM_ON);
+    if(forward){
+        ++children_index;
+        if(children_index == num_chiilden){
+            forward = false;
+            --children_index;
+        }
+     }else{
+        --children_index;
+        if(children_index == 0)
+            forward = true;
+    }
+
+}
 
 void createSimpleWidgetsExample()
 {
@@ -87,7 +108,7 @@ void createSimpleWidgetsExample()
         lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
 
         uint32_t i;
-        for(i = 0; i < 20; i++) {
+        for(i = 0; i < num_chiilden; i++) {
             lv_obj_t * btn = lv_btn_create(cont);
             lv_obj_set_size(btn, LV_PCT(100), LV_SIZE_CONTENT);
             lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_ALL, NULL);
@@ -102,6 +123,8 @@ void createSimpleWidgetsExample()
         /*Be sure the fist button is in the middle*/
         lv_obj_scroll_to_view(lv_obj_get_child(cont, 0), LV_ANIM_OFF);
 
+
+        lv_timer_t * timer = lv_timer_create(my_timer, 500,cont);
 
 }
 }
