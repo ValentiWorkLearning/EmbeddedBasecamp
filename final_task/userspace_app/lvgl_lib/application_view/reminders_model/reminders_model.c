@@ -349,3 +349,7 @@ void set_notification_is_about_to_remove_callback(notification_queue_enumerator 
      }
      return notifications_count;
  }
+ bool is_notifications_list_empty(void)
+ {
+     return list_empty(&reminders_list);
+ }

@@ -31,11 +31,16 @@ typedef void(*notification_queue_enumerator)(struct reminder*);
 typedef void(*notifications_queue_changed)(void);
 
 void for_each_notification_in_queue(notification_queue_enumerator);
+
 const char* get_notification_username(struct reminder*);
 const char* get_notification_text(struct reminder*);
+
 size_t get_notifications_total_count(void);
+
 void set_notification_queue_changed_callback(notifications_queue_changed callback);
 void set_notification_is_about_to_remove_callback(notification_queue_enumerator);
+
+bool is_notifications_list_empty(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/

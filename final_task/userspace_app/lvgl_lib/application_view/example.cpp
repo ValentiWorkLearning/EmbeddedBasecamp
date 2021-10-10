@@ -4,9 +4,13 @@
 #include <utils/CallbackConnector.hpp>
 #include <algorithm>
 
+
+static const char *kMessageboxButtons[] ={"OK",""};
+
+
 namespace Lvgl::Example {
 
-static void scroll_event_cb(lv_event_t * e)
+static void scrollEventCallback(lv_event_t * e)
 {
     lv_obj_t * cont = lv_event_get_target(e);
 
@@ -49,7 +53,7 @@ static void scroll_event_cb(lv_event_t * e)
     }
 }
 
-static void message_box_callback(lv_event_t * e)
+static void messageBoxDefaultCallback(lv_event_t * e)
 {
     lv_obj_t * obj = lv_event_get_current_target(e);
     lv_msgbox_close(obj);
@@ -57,12 +61,12 @@ static void message_box_callback(lv_event_t * e)
 
 static void createMessageboxForReminder(struct reminder* pReminder)
 {
-    static const char * btns[] ={"OK",""};
+
     const char* reminderUsername = get_notification_username(pReminder);
     const char* reminderText = get_notification_text(pReminder);
 
-    lv_obj_t * reminderMessagebox = lv_msgbox_create(NULL, reminderUsername, reminderText, btns, true);
-     lv_obj_add_event_cb(reminderMessagebox, message_box_callback, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * reminderMessagebox = lv_msgbox_create(nullptr, reminderUsername, reminderText, kMessageboxButtons, true);
+    lv_obj_add_event_cb(reminderMessagebox, messageBoxDefaultCallback, LV_EVENT_CLICKED, nullptr);
     lv_obj_center(reminderMessagebox);
 }
 static void onNotificationButtonClicked(lv_event_t * e)
@@ -86,7 +90,7 @@ RemindersViewModel::RemindersViewModel():m_autoscrollChildrenIndex{},m_scrollDir
     lv_obj_set_size(cont, 240, 240);
     lv_obj_center(cont);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
-    lv_obj_add_event_cb(cont, scroll_event_cb, LV_EVENT_SCROLL, NULL);
+    lv_obj_add_event_cb(cont, scrollEventCallback, LV_EVENT_SCROLL, nullptr);
     lv_obj_set_style_radius(cont, LV_RADIUS_CIRCLE, 0);
     lv_obj_set_style_clip_corner(cont, true, 0);
     lv_obj_set_scroll_dir(cont, LV_DIR_VER);
@@ -97,12 +101,10 @@ RemindersViewModel::RemindersViewModel():m_autoscrollChildrenIndex{},m_scrollDir
     for_each_notification_in_queue(enumNotifications);
 
 
-    lv_event_send(cont, LV_EVENT_SCROLL, NULL);
+    lv_event_send(cont, LV_EVENT_SCROLL, nullptr);
 
     /*Be sure the fist button is in the middle*/
     lv_obj_scroll_to_view(lv_obj_get_child(cont, 0), LV_ANIM_OFF);
-
-
 
     auto autoscrollTimerCallback = cbc::obtain_connector<0>(this,&RemindersViewModel::slotAutoScrollTimerExpired);
     auto notificationTimerCallback = cbc::obtain_connector<1>(this,&RemindersViewModel::slotNotificationTimerTick);
@@ -119,22 +121,24 @@ RemindersViewModel::RemindersViewModel():m_autoscrollChildrenIndex{},m_scrollDir
 
 void RemindersViewModel::createSimpleNotificationsModel()
 {
-    constexpr auto user1 = "Valenti";
-    constexpr auto user2 = "Void";
-    constexpr auto user3 = "Alex";
+    constexpr auto valenti = "Valenti";
+    constexpr auto voidUser = "Void";
+    constexpr auto alex = "Alex";
 
 
-    add_new_user(user1);
-    add_new_user(user2);
-    add_new_user(user3);
-    add_new_user(user1);
-    add_new_user(user2);
-    add_new_user(user3);
-    add_user_reminder(user1,"Buy some food!",10);
-    add_user_reminder(user1,"Buy some tomaaatos!",13);
-    add_user_reminder(user1,"But extre beer",15);
-    add_user_reminder(user3,"Buy cucumbers",20);
-    add_user_reminder(user3,"Buy sausages",40);
+    add_new_user(valenti);
+    add_new_user(voidUser);
+    add_new_user(alex);
+    add_new_user(valenti);
+    add_new_user(voidUser);
+    add_new_user(alex);
+
+    add_user_reminder(valenti,"Buy some food!",15);
+    add_user_reminder(valenti,"Buy some tomaaatos!",20);
+    add_user_reminder(valenti,"But extre beer",25);
+    add_user_reminder(voidUser,"Physical activity",30);
+    add_user_reminder(alex,"Buy sausages",35);
+    add_user_reminder(alex,"Check mobile for new messages",40);
 
 }
 
@@ -143,7 +147,7 @@ void RemindersViewModel::createNotification(struct reminder* pReminder)
     auto listContainer = m_notificationsListRoot.get();
     lv_obj_t * notificationButton = lv_btn_create(listContainer);
     lv_obj_set_size(notificationButton, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_add_event_cb(notificationButton, onNotificationButtonClicked, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(notificationButton, onNotificationButtonClicked, LV_EVENT_ALL, nullptr);
     lv_obj_set_user_data(notificationButton,pReminder);
     lv_obj_t * label = lv_label_create(notificationButton);
     lv_label_set_text(label, get_notification_username(pReminder));
@@ -159,8 +163,12 @@ void RemindersViewModel::slotNotificationIsAboutToBeRemoved(struct reminder* pRe
         if(pChildButton)
         {
             struct reminder* pReminderButton =  reinterpret_cast<struct reminder*>(lv_obj_get_user_data(pChildButton));
-            if(pReminder == pReminderButton)
-                lv_obj_del_async(pChildButton);
+            if(pReminder == pReminderButton){
+                lv_obj_del(pChildButton);
+                showExpriedNotificationMessageBox(pReminder);
+                checkIsListEmpty();
+                return;
+            }
         }
     }
 }
@@ -168,6 +176,11 @@ void RemindersViewModel::slotNotificationIsAboutToBeRemoved(struct reminder* pRe
 void RemindersViewModel::slotAutoScrollTimerExpired(lv_timer_t *timer)
 {
     lv_obj_t* view = m_notificationsListRoot.get();
+
+    const bool isEmpty = is_notifications_list_empty();
+    if(isEmpty)
+        return;
+
     size_t notificationsCount = get_notifications_total_count();
     const bool shouldScroll = notificationsCount > 1 && m_autoscrollChildrenIndex < notificationsCount;
     if(!shouldScroll)
@@ -175,7 +188,7 @@ void RemindersViewModel::slotAutoScrollTimerExpired(lv_timer_t *timer)
     lv_obj_scroll_to_view(lv_obj_get_child(view, m_autoscrollChildrenIndex), LV_ANIM_ON);
     if(m_scrollDirection == AutoscrollDirection::Forward)
     {
-         ++m_autoscrollChildrenIndex;
+        ++m_autoscrollChildrenIndex;
         if(m_autoscrollChildrenIndex == notificationsCount){
             m_scrollDirection = AutoscrollDirection::Backward;
             --m_autoscrollChildrenIndex;
@@ -183,15 +196,38 @@ void RemindersViewModel::slotAutoScrollTimerExpired(lv_timer_t *timer)
     }
     else{
         if(m_autoscrollChildrenIndex == 0)
-          m_scrollDirection = AutoscrollDirection::Forward;
+            m_scrollDirection = AutoscrollDirection::Forward;
         else
             --m_autoscrollChildrenIndex;
     }
 }
 
+void RemindersViewModel::showExpriedNotificationMessageBox(struct reminder* pReminder)
+{
+
+    const char* reminderText = get_notification_text(pReminder);
+
+    lv_obj_t* messagebox = lv_msgbox_create(nullptr, "!REMINDER!", reminderText, kMessageboxButtons, true);
+    lv_obj_add_event_cb(messagebox, messageBoxDefaultCallback, LV_EVENT_CLICKED, nullptr);
+    lv_obj_center(messagebox);
+}
 void RemindersViewModel::slotNotificationTimerTick(lv_timer_t* timer)
 {
     handle_timer_tick();
+}
+
+void RemindersViewModel::checkIsListEmpty()
+{
+    const bool isEmpty = is_notifications_list_empty();
+    if(isEmpty)
+    {
+        m_emptyListLabel.reset(lv_label_create(lv_scr_act()));
+        lv_label_set_text(m_emptyListLabel.get(), "Notification list is empty");
+        lv_obj_align(m_emptyListLabel.get(),LV_ALIGN_CENTER,0,0);
+    }
+    else{
+        m_emptyListLabel.reset();
+    }
 }
 RemindersViewModel::~RemindersViewModel()
 {
