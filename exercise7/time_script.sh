@@ -100,9 +100,7 @@ gpioPressedCounter=0
 gpioPreviousValue=0
 passedTimerIntervals=0
 
-readonly GPIO_PRESSED_SHORT_THERSHOLD=1
 readonly GPIO_PRESSED_LONG_THRESHOLD=5
-readonly TIMER_PERIOD=6
 
 while true
 do
@@ -111,10 +109,10 @@ do
 		$gpioPressedCounter+=1
 		$gpioPreviousValue=$gpioValue
 	else
-		if [ $gpioPressedCounter -eq $GPIO_PRESSED_LONG_THERSHOLD ] || [ $gpioPressedCounter -ge $GPIO_PRESSED_LONG_THERSHOLD ]; then
+		if [ $gpioPressedCounter -ge $GPIO_PRESSED_LONG_THERSHOLD ]; then
 			handleAppExit
 			exit 0
-		elif [ $gpioPressedCounter -le $GPIO_PRESSED_SHORT_THERSHOLD ] && [ $gpioPressedCounter -ge 0 ]; then
+		elif [ $gpioPressedCounter -le $GPIO_PRESSED_LONG_THERSHOLD ] && [ $gpioPressedCounter -ge 0 ]; then
 			readCurrentTime
 			$gpioPressedCounter=0
 			$gpioPreviousValue=0
