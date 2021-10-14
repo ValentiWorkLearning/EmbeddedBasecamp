@@ -88,7 +88,7 @@ readCurrentTime () {
 }
 
 initGpioLine () {
-	if [ ! -d /sys/class/gpio/$GPIO_USED_NUMBER ]; then
+	if [ ! -d "/sys/class/gpio/gpio$GPIO_USED_NUMBER" ]; then
 		echo "--------------------------GPIO INIT --------------------"
 		echo $USED_GPIO_NUMBER > /sys/class/gpio/export
 		sleep 0.1
@@ -103,26 +103,31 @@ gpioPressedCounter=0
 gpioPreviousValue=0
 passedTimerIntervals=0
 
-readonly GPIO_PRESSED_LONG_THRESHOLD=5
+readonly GPIO_PRESSED_LONG_THRESHOLD=0x05
 
 while true
 do
 	let gpioValue=`cat /sys/class/gpio/gpio$USED_GPIO_NUMBER/value`
 
-	printf "Got gpio value: $d \n" $gpioValue
-
-	if [ "$gpioPreviousValue" -eq "$gpioValue" ] && [ "$gpioValue" -eq 1 ]; then
-		$gpioPressedCounter+=1
-		$gpioPreviousValue=$gpioValue
+	if [[ $gpioValue -eq 1 ]]; then
+		if [[ $gpioPreviousValue -eq $gpioValue ]] ; then
+			gpioPressedCounter=$((gpioPressedCounter+1))
+		else
+			gpioPressedCounter=1
+		fi
+		gpioPreviousValue=$gpioValue
 	else
-		if [ "$gpioPressedCounter" -ge "$GPIO_PRESSED_LONG_THERSHOLD" ]; then
+		if [[ $gpioPressedCounter -ge $GPIO_PRESSED_LONG_THRESHOLD ]] ; then
+#			printf "gpio pressed counter is :%d, thershold:%d \n" $gpioPressedCounter $GPIO_PRESSED_LONG_THRESHOLD
 			handleAppExit
 			exit 0
-		elif [ "$gpioPressedCounter" -le "$GPIO_PRESSED_LONG_THERSHOLD" ] && [ "$gpioPressedCounter" -ge 0 ]; then
+		elif [[ $gpioPressedCounter -lt $GPIO_PRESSED_LONG_THRESHOLD ]] && [[ $gpioPressedCounter -gt 0 ]]; then
 			readCurrentTime
-			$gpioPressedCounter=0
-			$gpioPreviousValue=0
+			gpioPressedCounter=0
+			gpioPreviousValue=0
 		fi
 	fi
+#	printf "Gpio pressed counter is : %d \n" $gpioPressedCounter 
 	sleep 0.1
 done
+
