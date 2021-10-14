@@ -13,6 +13,17 @@ readonly RTC_WEEK_DAY=0x03
 readonly RTC_MONTH=0x05
 readonly RTC_YEAR=0x06
 
+
+readonly USED_GPIO_NUMBER=24
+
+trap handleAppExit SIGINT
+
+handleAppExit () {
+	echo "-----------------------ABOUT TO CLOSE------------------------------"
+	echo $USED_GPIO_NUMBER > /sys/class/gpio/unexport
+	exit 0
+}
+
 detectDevicesOnBus () {
 
 	echo "-------------Detecting i2c devices on the i2c bus 1----------------"
@@ -75,6 +86,40 @@ readCurrentTime () {
 
 	printf "Current time is : %d/%d/%d  %d:%d:%d\n" $currentYear $currentMonth $currentWeekday $currentHours $currentMin $currentSeconds 
 }
+
+initGpioLine () {
+	echo $USED_GPIO_NUMBER > /sys/class/gpio/export
+	sleep 0.1
+	echo "in" > /sys/class/gpio/gpio$USED_GPIO_NUMBER/direction
+}
+
+initGpioLine
 detectDevicesOnBus
-readCurrentTemperature
-readCurrentTime
+
+gpioPressedCounter=0
+gpioPreviousValue=0
+passedTimerIntervals=0
+
+readonly GPIO_PRESSED_SHORT_THERSHOLD=1
+readonly GPIO_PRESSED_LONG_THRESHOLD=5
+readonly TIMER_PERIOD=6
+
+while true
+do
+	let gpioValue=`cat /sys/class/gpio/gpio$USED_GPIO_NUMBER/value`
+	if [ $gpioPreviousValue -eq $gpioValue ] && [ $gpioValue -eq 1 ]; then
+		$gpioPressedCounter+=1
+		$gpioPreviousValue=$gpioValue
+	else
+		if [ $gpioPressedCounter -eq $GPIO_PRESSED_LONG_THERSHOLD ] || [ $gpioPressedCounter -ge $GPIO_PRESSED_LONG_THERSHOLD ]; then
+			handleAppExit
+			exit 0
+		elif [ $gpioPressedCounter -le $GPIO_PRESSED_SHORT_THERSHOLD ] && [ $gpioPressedCounter -ge 0 ]; then
+			readCurrentTime
+			$gpioPressedCounter=0
+			$gpioPreviousValue=0
+		fi
+	fi
+	sleep 0.1
+done
+
