@@ -88,9 +88,12 @@ readCurrentTime () {
 }
 
 initGpioLine () {
-	echo $USED_GPIO_NUMBER > /sys/class/gpio/export
-	sleep 0.1
-	echo "in" > /sys/class/gpio/gpio$USED_GPIO_NUMBER/direction
+	if [ ! -d /sys/class/gpio/$GPIO_USED_NUMBER ]; then
+		echo "--------------------------GPIO INIT --------------------"
+		echo $USED_GPIO_NUMBER > /sys/class/gpio/export
+		sleep 0.1
+		echo in > /sys/class/gpio/gpio$USED_GPIO_NUMBER/direction
+	fi
 }
 
 initGpioLine
@@ -105,14 +108,17 @@ readonly GPIO_PRESSED_LONG_THRESHOLD=5
 while true
 do
 	let gpioValue=`cat /sys/class/gpio/gpio$USED_GPIO_NUMBER/value`
-	if [ $gpioPreviousValue -eq $gpioValue ] && [ $gpioValue -eq 1 ]; then
+
+	printf "Got gpio value: $d \n" $gpioValue
+
+	if [ "$gpioPreviousValue" -eq "$gpioValue" ] && [ "$gpioValue" -eq 1 ]; then
 		$gpioPressedCounter+=1
 		$gpioPreviousValue=$gpioValue
 	else
-		if [ $gpioPressedCounter -ge $GPIO_PRESSED_LONG_THERSHOLD ]; then
+		if [ "$gpioPressedCounter" -ge "$GPIO_PRESSED_LONG_THERSHOLD" ]; then
 			handleAppExit
 			exit 0
-		elif [ $gpioPressedCounter -le $GPIO_PRESSED_LONG_THERSHOLD ] && [ $gpioPressedCounter -ge 0 ]; then
+		elif [ "$gpioPressedCounter" -le "$GPIO_PRESSED_LONG_THERSHOLD" ] && [ "$gpioPressedCounter" -ge 0 ]; then
 			readCurrentTime
 			$gpioPressedCounter=0
 			$gpioPreviousValue=0
@@ -120,4 +126,3 @@ do
 	fi
 	sleep 0.1
 done
-
