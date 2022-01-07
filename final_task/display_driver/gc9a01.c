@@ -102,12 +102,12 @@ static const uint8_t Commands[COMMANDS_SIZE] =
 
 static void init_display_internal(void);
 
-int init_display(int spi_module_index)
+int init_display(int spi_module_index, int chip_select)
 {
 	gpio_module_init_out(GPIO_PIN_RESET);
 	gpio_module_init_out(GPIO_PIN_DC);
 	lcd_reset();
-	if (init_spi_wrapper(spi_module_index)) {
+	if (init_spi_wrapper(spi_module_index,chip_select)) {
 		printk(KERN_ERR
 		       "Failed to initialize display. SPI module initialization failed\n");
 		return -1;

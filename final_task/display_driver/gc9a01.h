@@ -20,7 +20,7 @@
 #define LCD_WIDTH 240
 #define LCD_HEIGHT 240
 
-int init_display(int spi_module_index);
+int init_display(int spi_module_index, int chip_select);
 void lcd_set_address_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 void lcd_update_screen(void);
 void lcd_draw_pixel(uint16_t x, uint16_t y, uint16_t color);

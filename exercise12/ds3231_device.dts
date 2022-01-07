@@ -1,0 +1,21 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2835";
+	fragment@0 {
+		target = <&i2c1>;
+		__overlay__ {
+			status = "okay";
+			clock-frequency = <100000>;
+			#address-cells = <0x01>;
+			#size-cells = <0x0>;
+			my_ds3231: my_ds3231@68 {
+				compatible = "my_ds3231";
+				reg = <0x68>;
+				param1 = "F";
+				device-name = "DS3231 DEMO";
+			};
+		};
+	};
+};
