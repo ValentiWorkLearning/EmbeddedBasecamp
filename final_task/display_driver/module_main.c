@@ -12,7 +12,10 @@ MODULE_DESCRIPTION("GC9A01 display driver");
 MODULE_VERSION("0.1");
 
 static int spi_bus_index = 0;
+static int chip_select = 0;
+
 module_param(spi_bus_index, int, S_IRUGO);
+module_param(chip_select, int, S_IRUGO);
 
 static display_chardev_descriptor display_functions = {
 	.p_display_updater = &lcd_update_screen,
@@ -22,7 +25,7 @@ static display_chardev_descriptor display_functions = {
 
 static int __init display_module_init(void)
 {
-	if (init_display(spi_bus_index)) {
+	if (init_display(spi_bus_index,chip_select)) {
 		printk(KERN_INFO "Display initizization error \n");
 		return -1;
 	}

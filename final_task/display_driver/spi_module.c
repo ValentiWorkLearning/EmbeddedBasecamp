@@ -13,9 +13,10 @@ static struct spi_board_info gc9a01_spi_board_info = {
 };
 static struct spi_device *spi_device_master;
 
-int init_spi_wrapper(int spi_bus_index)
+int init_spi_wrapper(int spi_bus_index, int chip_select_index)
 {
 	gc9a01_spi_board_info.bus_num = spi_bus_index;
+	gc9a01_spi_board_info.chip_select = chip_select_index;
 
 	spi_module_block = spi_busnum_to_master(spi_bus_index);
 	if (!spi_module_block) {
